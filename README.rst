@@ -16,5 +16,5 @@ It provides a python API and a command-line tool.
 
 Project Resources
 -------------------
-* [Wiki](https://wiki.openstack.org/wiki/RACK)
-* [Source Code](https://github.com/stackforge/rack)
+* `Wiki <https://wiki.openstack.org/wiki/RACK>`__
+* `Source Code <https://github.com/stackforge/rack>`__

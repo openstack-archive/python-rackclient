@@ -1,0 +1,68 @@
+[group]
+### Required params ###
+name =
+
+### Not required params ###
+#description =
+
+[keypair]
+### Not required params ###
+#name =
+
+# True or False
+#is_default =
+
+[network]
+### Required params ###
+cidr =
+
+# UUID value
+ext_router_id =
+
+### Not required params ###
+# True or False
+#is_admin =
+
+# IP address
+#gateway_ip =
+
+# Space separated value
+# Syntax: dns_nameservers = x.x.x.x y.y.y.y
+#dns_nameservers =
+
+[securitygroup]
+### Required params ###
+# Syntax:
+# rules = protocol=[tcp|udp|icmp],port_range_max=[1-65535],port_range_min=[1-65535],[remote_ip_prefix=x.x.x.x/xx|remote_securitygroup_id=xx]
+#
+# Examples (you can specify more than one rules as a space separated value):
+# rules = 
+#     protocol=tcp,port_range_max=80,port_range_min=80,remote_ip_prefix=10.0.0.0/24
+#     protocol=udp,port_range_max=1,port_range_min=1023,remote_securitygroup_id=0dae9752-7e60-4da1-8c98-616e8b97ce8d
+#     protocol=icmp,remote_ip_prefix=10.0.0.0/24
+rules =
+
+### Not required params ###
+#name =
+
+# True or False
+#is_default =
+
+[proxy]
+### Required params ###
+# UUID value
+nova_flavor_id =
+
+# UUID value
+glance_image_id =
+
+### Not required params ###
+#name =
+
+# Userdata file path like /path/to/file
+#userdata =
+
+# Key-value pairs to be passed to metadata server
+# Syntax: args = key1=value1,key2=value2,...
+#args =
+

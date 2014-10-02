@@ -1,3 +1,16 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 from rackclient.client import HTTPClient
 from rackclient.v1.groups import GroupManager
 from rackclient.v1.keypairs import KeypairManager
@@ -9,9 +22,7 @@ from rackclient.v1.securitygroups import SecuritygroupManager
 
 class Client(object):
 
-    def __init__(self, user, tenant_name, rack_url, http_log_debug=False):
-        self.user = user
-        self.tenant_name = tenant_name
+    def __init__(self, rack_url=None, http_log_debug=False):
         self.rack_url = rack_url
         self.http_log_debug = http_log_debug
         self.groups = GroupManager(self)
@@ -20,4 +31,4 @@ class Client(object):
         self.networks = NetworkManager(self)
         self.processes = ProcessManager(self)
         self.proxy = ProxyManager(self)
-        self.client = HTTPClient(user, tenant_name, rack_url, http_log_debug=http_log_debug)
+        self.client = HTTPClient(rack_url, http_log_debug=http_log_debug)

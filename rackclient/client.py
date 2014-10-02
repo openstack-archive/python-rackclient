@@ -1,3 +1,16 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 import copy
 import json
 import logging
@@ -7,10 +20,7 @@ from rackclient import exceptions
 
 class HTTPClient(object):
 
-    def __init__(self, user, tenant_name, rack_url, http_log_debug=False):
-        self.user = user
-        self.tenant_name = tenant_name
-        self.auth_token = ':'.join([self.user, self.tenant_name])
+    def __init__(self, rack_url=None, http_log_debug=False):
         self.rack_url = rack_url.rstrip('/')
         self.http_log_debug = http_log_debug
         self._logger = logging.getLogger(__name__)
@@ -65,7 +75,6 @@ class HTTPClient(object):
             kwargs['headers']['Content-Type'] = 'application/json'
             kwargs['data'] = json.dumps(kwargs['body'])
             del kwargs['body']
-        kwargs['headers']['X-Auth-Token'] = self.auth_token
 
         url = self.rack_url + url
 

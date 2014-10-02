@@ -1,8 +1,21 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 class CommandError(Exception):
     pass
 
 
-class BaseException(Exception):
+class HTTPException(Exception):
     message = 'Unknown Error'
 
     def __init__(self, code, message=None, details=None, request_id=None,
@@ -22,7 +35,7 @@ class BaseException(Exception):
         return formatted_string
 
 
-class BadRequest(BaseException):
+class BadRequest(HTTPException):
     """
     HTTP 400 - Bad request: you sent some malformed data.
     """
@@ -30,7 +43,7 @@ class BadRequest(BaseException):
     message = "Bad request"
 
 
-class NotFound(BaseException):
+class NotFound(HTTPException):
     """
     HTTP 404 - Not found
     """
@@ -38,7 +51,7 @@ class NotFound(BaseException):
     message = "Not found"
 
 
-class InternalServerError(BaseException):
+class InternalServerError(HTTPException):
     """
     HTTP 500 - Internal Server Error
     """
@@ -75,3 +88,15 @@ def from_response(response, body, url, method=None):
 
     cls = _code_map.get(response.status_code, BaseException)
     return cls(**kwargs)
+
+
+class BaseError(Exception):
+    msg = "Unknown exception ocurred."
+
+    def __init__(self):
+        super(Exception, self).__init__(self.msg)
+
+
+class GetProcessContextError(Exception):
+    msg = "Could not get process context."
+

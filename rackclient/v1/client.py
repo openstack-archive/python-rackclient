@@ -21,7 +21,21 @@ from rackclient.v1.securitygroups import SecuritygroupManager
 
 
 class Client(object):
+    """
+    Top-level Object to access the rack API.
 
+    Create an rackclient instance::
+
+        >>> from rackclient.v1 import client
+        >>> client = client.Client()
+
+    Then call methods on its managers::
+
+        >>> client.processes.list()
+        ...
+        >>> client.groups.list()
+        ...
+    """
     def __init__(self, rack_url=None, http_log_debug=False):
         self.rack_url = rack_url
         self.http_log_debug = http_log_debug

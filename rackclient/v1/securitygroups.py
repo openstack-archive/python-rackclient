@@ -27,12 +27,33 @@ class SecuritygroupManager(base.Manager):
     resource_class = Securitygroup
 
     def list(self, gid):
+        """
+        Get a list of all securitygroups in the specified group.
+
+        :param gid: ID of the group.
+        :rtype: list of Securitygroup.
+        """
         return self._list("/groups/%s/securitygroups" % gid, "securitygroups")
 
     def get(self, gid, securitygroup_id):
+        """
+        Get a securitygroup.
+
+        :param gid: ID of the group.
+        :param securitygroup_id: ID of the securitygroup to get.
+        :rtype: Securitygroup.
+        """
         return self._get("/groups/%s/securitygroups/%s" % (gid, securitygroup_id), "securitygroup")
 
     def create(self, gid, name=None, is_default=False, securitygroup_rules=None):
+        """
+        Create a securitygroup.
+
+        :param gid: ID of the group.
+        :param name: Name of the securitygroup.
+        :param is_default: Set to the default securitygroup of the group.
+        :param list securitygroup_rules: List of rules of the securitygroup.
+        """
         try:
             is_default = strutils.bool_from_string(is_default, True)
         except Exception:
@@ -52,6 +73,13 @@ class SecuritygroupManager(base.Manager):
         return self._create("/groups/%s/securitygroups" % gid, body, "securitygroup")
 
     def update(self, gid, securitygroup_id, is_default=False):
+        """
+        Update status of securitygroup.
+
+        :param gid: ID of the group.
+        :param securitygroup_id: ID of the securitygroup to update.
+        :param is_default: Set to the default securitygroup of the group.
+        """
         try:
             is_default = strutils.bool_from_string(is_default, True)
         except Exception:
@@ -65,4 +93,10 @@ class SecuritygroupManager(base.Manager):
         return self._update("/groups/%s/securitygroups/%s" % (gid, securitygroup_id), body, "securitygroup")
 
     def delete(self, gid, securitygroup_id):
+        """
+        Delete a securitygroup.
+
+        :param gid: ID of the group.
+        :param securitygroup_id: ID of the securitygroup to delete.
+        """
         self._delete("/groups/%s/securitygroups/%s" % (gid, securitygroup_id))

@@ -8,3 +8,4 @@ oslo.utils>=0.2.0
 PrettyTable>=0.7,<0.8
 websocket-client>=0.16.0
 python-keystoneclient>=0.11.2
+pika>=0.9.14

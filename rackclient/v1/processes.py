@@ -27,9 +27,22 @@ class ProcessManager(base.Manager):
     resource_class = Process
 
     def list(self, gid):
+        """
+        Get a list of all processes in the specified group.
+
+        :param gid: ID of the group.
+        :rtype: list of Process.
+        """
         return self._list("/groups/%s/processes" % gid, "processes")
 
     def get(self, gid, pid):
+        """
+        Get a server.
+
+        :param gid: ID of the group.
+        :param pid: ID of the process to get.
+        :rtype: Process.
+        """
         return self._get("/groups/%s/processes/%s" % (gid, pid), "process")
 
     def create(self, gid, ppid=None, **kwargs):
@@ -42,13 +55,13 @@ class ProcessManager(base.Manager):
 
         Parameters in kwargs:
 
-        :param name: string
-        :param nova_flavor_id: string
-        :param glance_image_id: string
-        :param keypair_id: string
-        :param securitygroup_ids: a list of strings
-        :param userdata: file type object or string
-        :param dict args: a dict of key-value pairs to be stored as metadata
+        :param name: Name of the new process
+        :param nova_flavor_id: ID of a flavor
+        :param glance_image_id: ID of a glance image
+        :param keypair_id: ID of a keypair
+        :param list securitygroup_ids: List of IDs of securitygroups
+        :param userdata: file type object or string of script
+        :param dict args: Dict of key-value pairs to be stored as metadata
         '''
 
         securitygroup_ids = kwargs.get('securitygroup_ids')
@@ -80,6 +93,13 @@ class ProcessManager(base.Manager):
         return self._create("/groups/%s/processes" % gid, body, "process")
 
     def update(self, gid, pid, app_status):
+        """
+        Update status of process.
+
+        :param gid: ID of the group.
+        :param pid: ID of the process.
+        :param app_status: Application layer status of the process.
+        """
         body = {
             "process": {
                 "app_status": app_status
@@ -88,4 +108,10 @@ class ProcessManager(base.Manager):
         return self._update("/groups/%s/processes/%s" % (gid, pid), body, "process")
 
     def delete(self, gid, pid):
+        """
+        Delete a process.
+        
+        :param gid: ID of the group.
+        :param pid: ID of the process to delete.
+        """
         self._delete("/groups/%s/processes/%s" % (gid, pid))

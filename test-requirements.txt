@@ -1,0 +1,6 @@
+coverage
+discover
+fixtures
+testrepository
+testtools
+mock

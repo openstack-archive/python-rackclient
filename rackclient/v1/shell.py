@@ -1,11 +1,27 @@
-from ConfigParser import ConfigParser, NoOptionError
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+from ConfigParser import ConfigParser
+from ConfigParser import NoOptionError
+
 import argparse
 import os
-from oslo.utils import strutils
 import prettytable
+
+from oslo.utils import strutils
+from rackclient import exceptions
 from rackclient.openstack.common import cliutils
 from rackclient.openstack.common.gettextutils import _
-from rackclient import exceptions
 from rackclient.v1.syscall.default import signal
 from rackclient.v1.syscall.default import file as rackfile
 
@@ -24,6 +40,9 @@ def _keyvalue_to_dict(text):
 
 
 def do_group_list(cs, args):
+    """
+    Print a list of all groups.
+    """
     groups = cs.groups.list()
     fields = ['gid', 'name', 'description', 'status']
     print_list(groups, fields, sortby='gid')
@@ -34,6 +53,9 @@ def do_group_list(cs, args):
     metavar='<gid>',
     help=_("Group id"))
 def do_group_show(cs, args):
+    """
+    Show details about the given group.
+    """
     group = cs.groups.get(args.gid)
     keypairs = cs.keypairs.list(args.gid)
     securitygroups = cs.securitygroups.list(args.gid)
@@ -63,6 +85,9 @@ def do_group_show(cs, args):
     metavar='<description>',
     help=_("Details of the new group"))
 def do_group_create(cs, args):
+    """
+    Create a new group.
+    """
     group = cs.groups.create(args.name, args.description)
     d = group._info
     print_dict(d)
@@ -81,6 +106,9 @@ def do_group_create(cs, args):
     metavar='<description>',
     help=_("Details of the group"))
 def do_group_update(cs, args):
+    """
+    Update the specified group.
+    """
     group = cs.groups.update(args.gid, args.name, args.description)
     d = group._info
     print_dict(d)
@@ -91,10 +119,16 @@ def do_group_update(cs, args):
     metavar='<gid>',
     help=_("Group id"))
 def do_group_delete(cs, args):
+    """
+    Delete the specified group.
+    """
     cs.groups.delete(args.gid)
 
 
 def do_keypair_list(cs, args):
+    """
+    Print a list of all keypairs in the specified group. 
+    """
     keypairs = cs.keypairs.list(args.gid)
     fields = ['keypair_id', 'name', 'is_default', 'status']
     print_list(keypairs, fields, sortby='keypair_id')
@@ -105,6 +139,9 @@ def do_keypair_list(cs, args):
     metavar='<keypair_id>',
     help=_("Keypair ID"))
 def do_keypair_show(cs, args):
+    """
+    Show details about the given keypair. 
+    """
     keypair = cs.keypairs.get(args.gid, args.keypair_id)
     d = keypair._info
     print_dict(d)
@@ -121,6 +158,9 @@ def do_keypair_show(cs, args):
     type=lambda v: strutils.bool_from_string(v, True),
     default=False)
 def do_keypair_create(cs, args):
+    """
+    Create a new keypair.
+    """
     keypair = cs.keypairs.create(args.gid, args.name, args.is_default)
     d = keypair._info
     print_dict(d)
@@ -137,6 +177,9 @@ def do_keypair_create(cs, args):
     type=lambda v: strutils.bool_from_string(v, True),
     default=True)
 def do_keypair_update(cs, args):
+    """
+    Update the specified keypair.
+    """
     keypair = cs.keypairs.update(args.gid, args.keypair_id, args.is_default)
     d = keypair._info
     print_dict(d)
@@ -147,10 +190,16 @@ def do_keypair_update(cs, args):
     metavar='<keypair_id>',
     help=_("Keypair id"))
 def do_keypair_delete(cs, args):
+    """
+    Delete the specified keypair.
+    """
     cs.keypairs.delete(args.gid, args.keypair_id)
 
 
 def do_securitygroup_list(cs, args):
+    """
+    Print a list of all security groups in the specified group.
+    """
     securitygroups = cs.securitygroups.list(args.gid)
     fields = [
         'securitygroup_id', 'name', 'is_default', 'status'
@@ -163,6 +212,9 @@ def do_securitygroup_list(cs, args):
     metavar='<securitygroup_id>',
     help=_("Securitygroup id"))
 def do_securitygroup_show(cs, args):
+    """
+    Show details about the given security group.
+    """
     securitygroup = cs.securitygroups.get(args.gid, args.securitygroup_id)
     d = securitygroup._info
     print_dict(d)
@@ -180,8 +232,9 @@ def do_securitygroup_show(cs, args):
     default=False)
 @cliutils.arg(
     '--rule',
-    metavar="<protocol=tcp|udp|icmp,port_range_max=integer,port_range_min=integer,"
-            "remote_ip_prefix=cidr,remote_securitygroup_id=securitygroup_uuid>",
+    metavar="<protocol=tcp|udp|icmp,port_range_max=integer,"
+            "port_range_min=integer,remote_ip_prefix=cidr,"
+            "remote_securitygroup_id=securitygroup_uuid>",
     action='append',
     type=_keyvalue_to_dict,
     dest='rules',
@@ -194,7 +247,13 @@ def do_securitygroup_show(cs, args):
            "remote_securitygroup_id: Remote securitygroup id to apply rule. "
            "(Can be repeated)"))
 def do_securitygroup_create(cs, args):
-    securitygroup = cs.securitygroups.create(args.gid, args.name, args.is_default, args.rules)
+    """
+    Create a new security group.
+    """
+    securitygroup = cs.securitygroups.create(args.gid,
+                                             args.name,
+                                             args.is_default,
+                                             args.rules)
     d = securitygroup._info
     print_dict(d)
 
@@ -210,7 +269,12 @@ def do_securitygroup_create(cs, args):
     type=lambda v: strutils.bool_from_string(v, True),
     default=True)
 def do_securitygroup_update(cs, args):
-    securitygroup = cs.securitygroups.update(args.gid, args.securitygroup_id, args.is_default)
+    """
+    Update the specified security group.
+    """
+    securitygroup = cs.securitygroups.update(args.gid,
+                                             args.securitygroup_id,
+                                             args.is_default)
     d = securitygroup._info
     print_dict(d)
 
@@ -220,10 +284,16 @@ def do_securitygroup_update(cs, args):
     metavar='<securitygroup_id>',
     help=_("Securitygroup id"))
 def do_securitygroup_delete(cs, args):
+    """
+    Delete the specified security group.
+    """
     cs.securitygroups.delete(args.gid, args.securitygroup_id)
 
 
 def do_network_list(cs, args):
+    """
+    Print a list of all networks in the specified group.
+    """
     networks = cs.networks.list(args.gid)
     fields = [
         'network_id', 'name', 'is_admin', 'status'
@@ -236,6 +306,9 @@ def do_network_list(cs, args):
     metavar='<network_id>',
     help=_("network id"))
 def do_network_show(cs, args):
+    """
+    Show details about the given network.
+    """
     network = cs.networks.get(args.gid, args.network_id)
     d = network._info
     print_dict(d)
@@ -270,8 +343,16 @@ def do_network_show(cs, args):
     metavar='<ext_router_id>',
     help=_("Router id the new network connects to"))
 def do_network_create(cs, args):
-    network = cs.networks.create(args.gid, args.cidr, args.name, args.is_admin,
-                                 args.gateway_ip, args.dns_nameservers, args.ext_router_id)
+    """
+    Create a network.
+    """
+    network = cs.networks.create(args.gid,
+                                 args.cidr,
+                                 args.name,
+                                 args.is_admin,
+                                 args.gateway_ip,
+                                 args.dns_nameservers,
+                                 args.ext_router_id)
     d = network._info
     print_dict(d)
 
@@ -281,10 +362,16 @@ def do_network_create(cs, args):
     metavar='<network_id>',
     help=_("network id"))
 def do_network_delete(cs, args):
+    """
+    Delete the specified network.
+    """
     cs.networks.delete(args.gid, args.network_id)
 
 
 def do_process_list(cs, args):
+    """
+    Print a list of all processes in the specified group.
+    """
     processes = cs.processes.list(args.gid)
     fields = [
         'pid', 'ppid', 'name', 'status'
@@ -297,6 +384,9 @@ def do_process_list(cs, args):
     metavar='<pid>',
     help=_("process ID"))
 def do_process_show(cs, args):
+    """
+    Show details about the given process.
+    """
     process = cs.processes.get(args.gid, args.pid)
     d = process._info
     print_process(d)
@@ -338,13 +428,15 @@ def do_process_show(cs, args):
     metavar='<key1=value1,key2=value2 or a file including key=value lines>',
     help=_("Key-value pairs to be passed to metadata server"))
 def do_process_create(cs, args):
+    """
+    Create a new process.
+    """
     if args.userdata:
         try:
             userdata = open(args.userdata)
         except IOError as e:
             raise exceptions.CommandError(
-                _("Can't open '%(userdata)s': %(exc)s") %
-                  {'userdata': args.userdata, 'exc': e})
+                _("Can't open '%s'") % args.userdata)
     else:
         userdata = None
 
@@ -352,19 +444,16 @@ def do_process_create(cs, args):
         if os.path.exists(args.args):
             try:
                 f = open(args.args)
-            except IOError as e:
-                raise exceptions.CommandError(
-                    _("Can't open '%(args)s': %(exc)s") %
-                      {'args': args.args, 'exc': e})
-            options = {}
-            for line in f:
-                try:
+                options = {}
+                for line in f:
                     k, v = line.split('=', 1)
                     options.update({k.strip(): v.strip()})
-                except ValueError:
-                    raise exceptions.CommandError(
-                        _("%(args)s is not the format of key=value lines")
-                    )
+            except IOError as e:
+                raise exceptions.CommandError(
+                    _("Can't open '%s'") % args.args)
+            except ValueError:
+                raise exceptions.CommandError(
+                    _("%s is not the format of key=value lines") % args.args)
         else:
             try:
                 options = _keyvalue_to_dict(args.args)
@@ -373,9 +462,14 @@ def do_process_create(cs, args):
     else:
         options = None
 
-    process = cs.processes.create(args.gid, ppid=args.ppid, name=args.name, nova_flavor_id=args.nova_flavor_id,
-                                  glance_image_id=args.glance_image_id, keypair_id=args.keypair_id,
-                                  securitygroup_ids=args.securitygroup_ids, userdata=userdata,
+    process = cs.processes.create(args.gid,
+                                  ppid=args.ppid,
+                                  name=args.name,
+                                  nova_flavor_id=args.nova_flavor_id,
+                                  glance_image_id=args.glance_image_id,
+                                  keypair_id=args.keypair_id,
+                                  securitygroup_ids=args.securitygroup_ids,
+                                  userdata=userdata,
                                   args=options)
     d = process._info
     print_process(d)
@@ -390,6 +484,9 @@ def do_process_create(cs, args):
     metavar='<app_status>',
     help=_("Application layer status of the process"))
 def do_process_update(cs, args):
+    """
+    Update the specified process.
+    """
     process = cs.processes.update(args.gid, args.pid, args.app_status)
     d = process._info
     print_process(d)
@@ -400,10 +497,16 @@ def do_process_update(cs, args):
     metavar='<pid>',
     help=_("Process id"))
 def do_process_delete(cs, args):
+    """
+    Delete the specified process.
+    """
     cs.processes.delete(args.gid, args.pid)
 
 
 def do_proxy_show(cs, args):
+    """
+    Show details about the given rack-proxy process.
+    """
     proxy = cs.proxy.get(args.gid)
     d = proxy._info
     print_process(d)
@@ -441,13 +544,15 @@ def do_proxy_show(cs, args):
     metavar='<key1=value1,key2=value2 or a file including key=value lines>',
     help=_("Key-value pairs to be passed to metadata server"))
 def do_proxy_create(cs, args):
+    """
+    Create a new rack-proxy process.
+    """
     if args.userdata:
         try:
             userdata = open(args.userdata)
         except IOError as e:
             raise exceptions.CommandError(
-                _("Can't open '%(userdata)s': %(exc)s") %
-                  {'userdata': args.userdata, 'exc': e})
+                _("Can't open '%s'") % args.userdata)
     else:
         userdata = None
 
@@ -455,19 +560,16 @@ def do_proxy_create(cs, args):
         if os.path.exists(args.args):
             try:
                 f = open(args.args)
-            except IOError as e:
-                raise exceptions.CommandError(
-                    _("Can't open '%(args)s': %(exc)s") %
-                      {'args': args.args, 'exc': e})
-            options = {}
-            for line in f:
-                try:
+                options = {}
+                for line in f:
                     k, v = line.split('=', 1)
                     options.update({k.strip(): v.strip()})
-                except ValueError:
-                    raise exceptions.CommandError(
-                        _("%(args)s is not the format of key=value lines")
-                    )
+            except IOError as e:
+                raise exceptions.CommandError(
+                    _("Can't open '%s'") % args.args)
+            except ValueError:
+                raise exceptions.CommandError(
+                    _("%s is not the format of key=value lines") % args.args)
         else:
             try:
                 options = _keyvalue_to_dict(args.args)
@@ -476,9 +578,13 @@ def do_proxy_create(cs, args):
     else:
         options = None
 
-    proxy = cs.proxy.create(args.gid, name=args.name, nova_flavor_id=args.nova_flavor_id,
-                            glance_image_id=args.glance_image_id, keypair_id=args.keypair_id,
-                            securitygroup_ids=args.securitygroup_ids, userdata=userdata,
+    proxy = cs.proxy.create(args.gid,
+                            name=args.name,
+                            nova_flavor_id=args.nova_flavor_id,
+                            glance_image_id=args.glance_image_id,
+                            keypair_id=args.keypair_id,
+                            securitygroup_ids=args.securitygroup_ids,
+                            userdata=userdata,
                             args=options)
     d = proxy._info
     print_process(d)
@@ -501,7 +607,14 @@ def do_proxy_create(cs, args):
     metavar='<app_status>',
     help=_("Application layer status of the proxy"))
 def do_proxy_update(cs, args):
-    proxy = cs.proxy.update(args.gid, args.shm_endpoint, args.ipc_endpoint, args.fs_endpoint, args.app_status)
+    """
+    Update the specified rack-proxy process.
+    """
+    proxy = cs.proxy.update(args.gid,
+                            args.shm_endpoint,
+                            args.ipc_endpoint,
+                            args.fs_endpoint,
+                            args.app_status)
     d = proxy._info
     print_process(d)
 
@@ -549,6 +662,10 @@ def print_dict(d):
     metavar='<config-file>',
     help=_("Configuration file included parameters of the new group"))
 def do_group_init(cs, args):
+    """
+    Create a group, a keypair, a security group, a network and 
+    a rack-proxy based on the specified configuration file.
+    """
     config = ConfigParser()
     config.read(args.config)
 
@@ -561,6 +678,7 @@ def do_group_init(cs, args):
         description = config.get('group', 'description')
     except NoOptionError:
         description = None
+
     group = cs.groups.create(name, description)
     d = group._info
     print_dict(d)
@@ -574,12 +692,9 @@ def do_group_init(cs, args):
         name = None
     try:
         is_default = config.get('keypair', 'is_default')
-        if is_default:
-            strutils.bool_from_string(is_default, True)
-        else:
-            is_default = False
     except NoOptionError:
         is_default = False
+
     keypair = cs.keypairs.create(gid, name, is_default)
     d = keypair._info
     print_dict(d)
@@ -591,10 +706,6 @@ def do_group_init(cs, args):
         name = None
     try:
         is_default = config.get('securitygroup', 'is_default')
-        if is_default:
-            strutils.bool_from_string(is_default, True)
-        else:
-            is_default = False
     except NoOptionError:
         is_default = False
     try:
@@ -603,6 +714,11 @@ def do_group_init(cs, args):
             rules[i] = _keyvalue_to_dict(rules[i])
     except NoOptionError:
         rules = []
+    except argparse.ArgumentTypeError as e:
+        raise exceptions.CommandError(
+            _("Could not create a securitygroup: "
+              "securitygroup rules are not valid formart: %s") % e.message)
+
     securitygroup = cs.securitygroups.create(gid, name, is_default, rules)
     d = securitygroup._info
     print_dict(d)
@@ -618,16 +734,10 @@ def do_group_init(cs, args):
         name = None
     try:
         is_admin = config.get('network', 'is_admin')
-        if is_admin:
-            strutils.bool_from_string(is_admin, True)
-        else:
-            is_admin = False
     except NoOptionError:
         is_admin = False
     try:
         gateway_ip = config.get('network', 'gateway_ip')
-        if gateway_ip == '':
-            gateway_ip = None
     except NoOptionError:
         gateway_ip = None
     try:
@@ -638,6 +748,7 @@ def do_group_init(cs, args):
         ext_router_id = config.get('network', 'ext_router_id')
     except NoOptionError:
         ext_router_id = None
+
     network = cs.networks.create(gid, cidr, name, is_admin,
                                  gateway_ip, dns_nameservers, ext_router_id)
     d = network._info
@@ -660,16 +771,26 @@ def do_group_init(cs, args):
     securitygroup_ids = [securitygroup.securitygroup_id]
     try:
         userdata = config.get('proxy', 'userdata')
+        userdata = open(userdata)
     except NoOptionError:
         userdata = None
+    except IOError:
+        raise exceptions.CommandError(
+            _("Can't open %s.") % userdata)
     try:
-        proxy_args = config.get('proxy', 'args').replace(' ', '')
+        proxy_args = config.get('proxy', 'args')
         proxy_args = _keyvalue_to_dict(proxy_args)
     except NoOptionError:
         proxy_args = None
-    proxy = cs.proxy.create(gid, name=name, nova_flavor_id=nova_flavor_id,
-                            glance_image_id=glance_image_id, keypair_id=keypair_id,
-                            securitygroup_ids=securitygroup_ids, userdata=userdata,
+    except argparse.ArgumentTypeError as e:
+        raise exceptions.CommandError(e)
+
+    proxy = cs.proxy.create(gid, name=name,
+                            nova_flavor_id=nova_flavor_id,
+                            glance_image_id=glance_image_id,
+                            keypair_id=keypair_id,
+                            securitygroup_ids=securitygroup_ids,
+                            userdata=userdata,
                             args=proxy_args)
     d = proxy._info
     print_process(d)
@@ -682,94 +803,3 @@ def do_group_init(cs, args):
         "proxy pid": proxy.pid
     }
     print_dict(result_dict)
-
-
-@cliutils.arg(
-    '--ipc_endpoint',
-    metavar='<ipc_endpoint>',
-    help=_("The IPC Endpoint"))
-@cliutils.arg(
-    'target_pid',
-    metavar='<target_pid>',
-    help=_("Target process id to send the message to"))
-@cliutils.arg(
-    'message',
-    metavar='<message>',
-    help=_("Message to send"))
-def do_signal_send(cs, args):
-    sig = signal.SignalManager(args.ipc_endpoint)
-    sig.send(args.target_pid, args.message)
-
-
-@cliutils.arg(
-    '--ipc_endpoint',
-    metavar='<ipc_endpoint>',
-    help=_("The IPC Endpoint"))
-@cliutils.arg(
-    'target_pid',
-    metavar='<target_pid>',
-    help=_("Target process id to send the message to"))
-def do_signal_receive(cs, args):
-    sig = signal.SignalManager(args.ipc_endpoint)
-
-    def _print_message(message):
-        print message
-
-    sig.receive(_print_message, args.target_pid)
-
-
-def _filesystem_path(text):
-    try:
-        container, file_name = text.strip('/').split('/', 1)
-        return (container, file_name)
-    except ValueError:
-        msg = "%r " % text
-        raise argparse.ArgumentTypeError(msg)
-
-
-@cliutils.arg(
-    '--proxy_ip',
-    metavar='<proxy_ip>',
-    help=_("rack-proxy's IP address"))
-@cliutils.arg(
-    'target_path',
-    metavar='</foo/bar/hoge.txt>',
-    type=_filesystem_path,
-    help=_("File path in the RACK file system to upload file to"))
-@cliutils.arg(
-    'file',
-    metavar='<PATH>',
-    type=argparse.FileType('r'),
-    help=_("File to upload to the RACK file system"))
-def do_file_put(cs, args):
-    if args.proxy_ip:
-        url = "http://" + args.proxy_ip + ":8080/auth/v1.0"
-    else:
-        url = None
-    f = rackfile.File(args.target_path[0], args.target_path[1], mode='w', url=url)
-    for l in args.file:
-        f.write(l)
-    f.close()
-
-
-@cliutils.arg(
-    '--proxy_ip',
-    metavar='<proxy_ip>',
-    help=_("rack-proxy's IP address"))
-@cliutils.arg(
-    'target_path',
-    metavar='</foo/bar/hoge.txt>',
-    type=_filesystem_path,
-    help=_("File path in the RACK file system to download from"))
-def do_file_get(cs, args):
-    if args.proxy_ip:
-        url = "http://" + args.proxy_ip + ":8080/auth/v1.0"
-    else:
-        url = None
-    rackf = rackfile.File(args.target_path[0], args.target_path[1], mode='r', url=url)
-    filename = args.target_path[1].split('/')[-1]
-    f = open(filename, 'w')
-    for l in rackf.readlines():
-        f.write(l)
-    f.close()
-    rackf.close()

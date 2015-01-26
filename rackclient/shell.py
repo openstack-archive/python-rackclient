@@ -1,3 +1,17 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 """
 Command-line interface to the RACK API.
 """
@@ -9,7 +23,7 @@ from oslo.utils import encodeutils
 from rackclient.openstack.common.gettextutils import _
 from rackclient.openstack.common import cliutils
 from rackclient.v1 import shell as shell_v1
-from rackclient.v1 import client as client_v1
+from rackclient import client
 from rackclient import exceptions
 
 DEFAULT_RACK_API_VERSION = "1"
@@ -157,10 +171,7 @@ class RackShell(object):
                 _("You must provide an RACK url "
                   "via either --rack-url or env[RACK_URL] "))
 
-        if options.rack_api_version == '1':
-            self.cs = client_v1.Client(rack_url=args.rack_url, http_log_debug=options.debug)
-        else:
-            return 0
+        self.cs = client.Client(options.rack_api_version, rack_url=args.rack_url, http_log_debug=options.debug)
 
         if args.func.func_name[3:].split('_')[0] != 'group' and not args.gid:
             raise exceptions.CommandError(

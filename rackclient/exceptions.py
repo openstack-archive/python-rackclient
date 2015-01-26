@@ -11,6 +11,13 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+class UnsupportedVersion(Exception):
+    """Indicates that the user is trying to use an unsupported
+    version of the API.
+    """
+    pass
+
+
 class CommandError(Exception):
     pass
 
@@ -59,7 +66,15 @@ class InternalServerError(HTTPException):
     message = "Internal Server Error"
 
 
-_error_classes = [BadRequest, NotFound, InternalServerError]
+class RateLimit(HTTPException):
+    """
+    HTTP 413 - Too much Requests
+    """
+    http_status = 413
+    message = "This request was rate-limited."
+
+
+_error_classes = [BadRequest, NotFound, InternalServerError, RateLimit]
 _code_map = dict((c.http_status, c) for c in _error_classes)
 
 
@@ -86,17 +101,48 @@ def from_response(response, body, url, method=None):
         kwargs['message'] = message
         kwargs['details'] = details
 
-    cls = _code_map.get(response.status_code, BaseException)
+    cls = _code_map.get(response.status_code, HTTPException)
     return cls(**kwargs)
 
 
 class BaseError(Exception):
-    msg = "Unknown exception ocurred."
+    """
+    The base exception class for all exceptions except for HTTPException based classes.
+    """
+    pass
 
-    def __init__(self):
-        super(Exception, self).__init__(self.msg)
+
+class ForkError(BaseError):
+    pass
 
 
-class GetProcessContextError(Exception):
-    msg = "Could not get process context."
+class AMQPConnectionError(BaseError):
+    pass
 
+
+class InvalidDirectoryError(BaseError):
+    pass
+
+
+class InvalidFilePathError(BaseError):
+    pass
+
+
+class InvalidFSEndpointError(BaseError):
+    pass
+
+
+class FileSystemAccessError(BaseError):
+    pass
+
+
+class MetadataAccessError(BaseError):
+    pass
+
+
+class InvalidProcessError(BaseError):
+    pass
+
+
+class ProcessInitError(BaseError):
+    pass

@@ -1,13 +1,12 @@
 import logging
 import time
 from datetime import datetime
-
 import redis
-
 from rackclient import process_context
 
-
 LOG = logging.getLogger(__name__)
+
+PCTXT = process_context.PCTXT
 
 
 class EndOfFile(Exception):
@@ -57,14 +56,6 @@ def reference_key_pattern(name="*", pid="*"):
     return name + ":" + pid
 
 
-def get_host():
-    return process_context.PCTXT.proxy_ip
-
-
-def get_pid():
-    return process_context.PCTXT.pid
-
-
 PIPE = 1
 FIFO = 2
 PORT = 6379
@@ -73,7 +64,7 @@ PORT = 6379
 class Pipe:
     def __init__(self, name=None, read=None, write=None):
         now = datetime.now()
-        self.host = get_host()
+        self.host = PCTXT.proxy_ip
         self.port = PORT
         if name:
             self.is_named = True
@@ -84,13 +75,13 @@ class Pipe:
         else:
             self.is_named = False
             self.r = redis.StrictRedis(host=self.host, port=self.port, db=PIPE)
-            parent_pipe = self.r.keys(reference_key_pattern(pid=get_pid()))
+            parent_pipe = self.r.keys(reference_key_pattern(pid=PCTXT.pid))
             if parent_pipe:
                 self.name = self.r.get(parent_pipe[0])
             else:
-                self.name = get_pid()
-            read_state = self.r.hget(read_state_key(self.name), get_pid()) or now
-            write_state = self.r.hget(write_state_key(self.name), get_pid()) or now
+                self.name = PCTXT.pid
+            read_state = self.r.hget(read_state_key(self.name), PCTXT.pid) or now
+            write_state = self.r.hget(write_state_key(self.name), PCTXT.pid) or now
         if read is not None:
             if read:
                 read_state = now
@@ -103,8 +94,8 @@ class Pipe:
                 write_state = "close"
         self.read_state = read_state
         self.write_state = write_state
-        self.r.hset(read_state_key(self.name), get_pid(), self.read_state)
-        self.r.hset(write_state_key(self.name), get_pid(), self.write_state)
+        self.r.hset(read_state_key(self.name), PCTXT.pid, self.read_state)
+        self.r.hset(write_state_key(self.name), PCTXT.pid, self.write_state)
 
     def read(self):
         if self.read_state == "close":
@@ -134,11 +125,11 @@ class Pipe:
 
     def close_reader(self):
         self.read_state = "close"
-        self.r.hset(read_state_key(self.name), get_pid(), self.read_state)
+        self.r.hset(read_state_key(self.name), PCTXT.pid, self.read_state)
 
     def close_writer(self):
         self.write_state = "close"
-        self.r.hset(write_state_key(self.name), get_pid(), self.write_state)
+        self.r.hset(write_state_key(self.name), PCTXT.pid, self.write_state)
 
     def has_reader(self):
         read_states = self.r.hvals(read_state_key(self.name))
@@ -167,7 +158,10 @@ class Pipe:
         self.r.delete(*tuple(keys))
 
     @classmethod
-    def flush_by_pid(cls, pid, host=get_host()):
+    def flush_by_pid(cls, pid, host=None):
+        if not host:
+            host = PCTXT.proxy_ip
+
         r = redis.StrictRedis(host=host, port=PORT, db=PIPE)
         keys = [pid,
                 read_state_key(pid),
@@ -176,7 +170,10 @@ class Pipe:
         r.delete(*tuple(keys))
 
     @classmethod
-    def flush_by_name(cls, name, host=get_host()):
+    def flush_by_name(cls, name, host=None):
+        if not host:
+            host = PCTXT.proxy_ip
+
         r = redis.StrictRedis(host=host, port=PORT, db=FIFO)
         keys = [name,
                 read_state_key(name),
@@ -184,7 +181,10 @@ class Pipe:
         r.delete(*tuple(keys))
 
     @classmethod
-    def share(cls, ppid, pid, host=get_host()):
+    def share(cls, ppid, pid, host=None):
+        if not host:
+            host = PCTXT.proxy_ip
+        
         now = datetime.now()
         r = redis.StrictRedis(host=host, port=PORT, db=PIPE)
         keys = r.keys(reference_key_pattern(pid=ppid))

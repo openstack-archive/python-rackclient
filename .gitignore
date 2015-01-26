@@ -4,3 +4,9 @@ dist/
 *.egg-info/
 *.egg/
 build/
+.coverage
+.testrepository/
+.tox/
+cover/
+htmlcov/
+

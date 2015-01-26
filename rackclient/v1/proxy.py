@@ -27,21 +27,27 @@ class ProxyManager(base.Manager):
     resource_class = Proxy
 
     def get(self, gid):
+        """
+        Get a rack-proxy process information.
+
+        :param gid: ID of the group.
+        :rtype: Process
+        """
         return self._get("/groups/%s/proxy" % (gid), "proxy")
 
     def create(self, gid, name=None, nova_flavor_id=None, glance_image_id=None, keypair_id=None,
                securitygroup_ids=None, userdata=None, args=None):
         """
-        Create a RACK proxy.
+        Create a rack-proxy process.
 
-        :param gid: string
-        :param name: string
-        :param nova_flavor_id: string
-        :param glance_image_id: string
-        :param keypair_id: string
-        :param securitygroup_ids: a list of strings
-        :param userdata: file type object or string
-        :param dict args: a dict of key-value pairs to be stored as metadata
+        :param gid: ID of a group
+        :param name: Name of the rack-proxy process
+        :param nova_flavor_id: ID of a flavor
+        :param glance_image_id: ID of a glance image
+        :param keypair_id: ID of a keypair
+        :param securitygroup_ids: List of IDs of securitygroups
+        :param userdata: file type object or string of script
+        :param dict args: Dict of key-value pairs to be stored as metadata
         """
 
         if securitygroup_ids is not None and not isinstance(securitygroup_ids, list):
@@ -70,13 +76,13 @@ class ProxyManager(base.Manager):
 
     def update(self, gid, shm_endpoint=None, ipc_endpoint=None, fs_endpoint=None, app_status=None):
         """
-        Update parameters of a RACK proxy.
+        Update parameters of a rack-proxy process.
 
-        :param gid: string
-        :param shm_endpoint: A endpoint of Shared memory. Arbitrary string value.
-        :param ipc_endpoint: A endpoint of IPC. Arbitrary string value.
-        :param fs_endpoint: A endpoint of File System. Arbitrary string value.
-        :param app_status: An application layer status of a RACK proxy, assuming 'ACTIVE' or 'ERROR'.
+        :param gid: ID of a group
+        :param shm_endpoint: An endpoint of Shared memory. Arbitrary string value.
+        :param ipc_endpoint: An endpoint of IPC. Arbitrary string value.
+        :param fs_endpoint: An endpoint of File System. Arbitrary string value.
+        :param app_status: Application layer status of a rack-proxy process.
         """
 
         body = {

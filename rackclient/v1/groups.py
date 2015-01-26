@@ -25,9 +25,20 @@ class GroupManager(base.Manager):
     resource_class = Group
 
     def list(self):
+        """
+        Get a list of all groups.
+
+        :rtype: list of Group.
+        """
         return self._list("/groups", "groups")
 
     def get(self, gid):
+        """
+        Get a group.
+
+        :param gid: ID of group to get.
+        :rtype: Group.
+        """
         return self._get("/groups/%s" % gid, "group")
 
     def _build_body(self, name, description=None):
@@ -39,12 +50,30 @@ class GroupManager(base.Manager):
         }
 
     def create(self, name, description=None):
+        """
+        Create a group.
+
+        :param name: Name of the group.
+        :param description: Descritpion of the group.
+        """
         body = self._build_body(name, description)
         return self._create("/groups", body, "group")
 
     def update(self, gid, name, description=None):
+        """
+        Update the name or the description of the group.
+
+        :param gid: ID of the group.
+        :param name: Name of the group to update.
+        :param description: Description of the group to update.
+        """
         body = self._build_body(name, description)
         return self._update("/groups/%s" % gid, body, "group")
 
     def delete(self, gid):
+        """
+        Delete a group.
+        
+        :param gid: ID of the group to delete.
+        """
         self._delete("/groups/%s" % gid)

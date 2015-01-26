@@ -15,7 +15,9 @@ import copy
 import json
 import logging
 import requests
+from rackclient.openstack.common.gettextutils import _
 from rackclient import exceptions
+from rackclient.openstack.common import importutils
 
 
 class HTTPClient(object):
@@ -112,3 +114,23 @@ class HTTPClient(object):
 
     def delete(self, url, **kwargs):
         return self.request(url, 'DELETE', **kwargs)
+
+
+def get_client_class(version):
+    version_map = {
+        '1': 'rackclient.v1.client.Client',
+    }
+    try:
+        client_path = version_map[str(version)]
+    except (KeyError, ValueError):
+        msg = _("Invalid client version '%(version)s'. must be one of: "
+                "%(keys)s") % {'version': version,
+                               'keys': ', '.join(version_map.keys())}
+        raise exceptions.UnsupportedVersion(msg)
+
+    return importutils.import_class(client_path)
+
+
+def Client(version, *args, **kwargs):
+    client_class = get_client_class(version)
+    return client_class(*args, **kwargs)

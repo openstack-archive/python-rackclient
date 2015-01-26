@@ -1,27 +1,35 @@
 import json
+import logging
 import tempfile
-from rackclient import process_context
 from swiftclient import client as swift_client
+from swiftclient import exceptions as swift_exc
+from rackclient import process_context
+from rackclient import exceptions
+
+
+LOG = logging.getLogger(__name__)
 
 PCTXT = process_context.PCTXT
 SWIFT_PORT = 8080
 
 
-def _get_swift_client(v1_authurl=None):
-    if v1_authurl:
-        authurl = v1_authurl
-    elif PCTXT.fs_endpoint:
-        d = json.loads(PCTXT.fs_endpoint)
-        credentials = {
-            "user": d["os_username"],
-            "key": d["os_password"],
-            "tenant_name": d["os_tenant_name"],
-            "authurl": d["os_auth_url"],
-            "auth_version": "2"
-        }
-        return swift_client.Connection(**credentials)
+def _get_swift_client():
+    if PCTXT.fs_endpoint:
+        try:
+            d = json.loads(PCTXT.fs_endpoint)
+            credentials = {
+                "user": d["os_username"],
+                "key": d["os_password"],
+                "tenant_name": d["os_tenant_name"],
+                "authurl": d["os_auth_url"],
+                "auth_version": "2"
+            }
+            return swift_client.Connection(**credentials)
+        except (ValueError, KeyError):
+            msg = "The format of fs_endpoint is invalid."
+            raise exceptions.InvalidFSEndpointError(msg)
     else:
-        authurl = "http://" + ':'.join([PCTXT.proxy_ip, str(SWIFT_PORT)]) + "/auth/v1.0"
+        authurl = "http://%s:%d/auth/v1.0" % (PCTXT.proxy_ip, SWIFT_PORT)
 
     credentials = {
         "user": "rack:admin",
@@ -33,59 +41,101 @@ def _get_swift_client(v1_authurl=None):
     return swift_client.Connection(preauthurl=authurl, preauthtoken=token)
 
 
-def get_objects(container, url=None):
-    swift = _get_swift_client(url)
-    objects = []
-    for f in swift.get_container(container)[1]:
-        objects.append(f["name"])
-    return objects
+def listdir(directory):
+    swift = _get_swift_client()
+    directory = directory.strip('/')
 
-
-def load(container, name, chunk_size=None, url=None):
-    swift = _get_swift_client(url)
-    return swift.get_object(container, name, resp_chunk_size=chunk_size)[1]
-
-
-def save(container, name, data, url=None):
-    swift = _get_swift_client(url)
+    files = []
     try:
-        swift.put_container(container)
-    except:
-        pass
-    return swift.put_object(container, name, data)
+        objects = swift.get_container(directory)[1]
+        for o in objects:
+            file_path = '/' + directory + '/' + o['name']
+            files.append(File(file_path))
+    except swift_exc.ClientException as e:
+        if e.http_status == 404:
+            msg = "Directory '%s' does not exist." % directory
+            raise exceptions.InvalidDirectoryError(msg)
+        else:
+            raise exceptions.FileSystemAccessError()
+
+    return files
 
 
 class File(object):
-    def __init__(self, container, name, mode="r", chunk_size=102400000, url=None):
-        self.container = container
-        self.name = name
-        self.mode = mode
-        self.url = url
-        self.file = tempfile.TemporaryFile()
-        if self.mode == 'r':
-            self._rsync(chunk_size=chunk_size)
-        elif self.mode == 'w':
-            pass
+
+    def __init__(self, file_path, mode="r"):
+        self.path = file_path
+        self.file = None
+        if mode not in ('r', 'w'):
+            raise ValueError(
+                "mode must be 'r' or 'w', not %s" % mode)
         else:
-            raise ValueError("mode string must begin with 'r' or 'w', not %s" % mode)
+            self.mode = mode
 
-    def _load(self, chunk_size=None):
-        return load(self.container, self.name, chunk_size=chunk_size, url=self.url)
+    def get_name(self):
+        return self.path.strip('/').split('/', 1)[1]
 
-    def _rsync(self, chunk_size=None):
-        for c in self._load(chunk_size=chunk_size):
-            self.file.write(c)
-        self.file.flush()
-        self.file.seek(0)
+    def get_directory(self):
+        return self.path.strip('/').split('/', 1)[0]
 
-    def _save(self):
-        return save(self.container, self.name, self.file, url=self.url)
+    def load(self, chunk_size=None):
+        if self.file:
+            return
+
+        if self.mode == 'r':
+            self.file = tempfile.TemporaryFile()
+            swift = _get_swift_client()
+
+            try:
+                _, contents = swift.get_object(self.get_directory(),
+                                            self.get_name(), chunk_size)
+                if chunk_size:
+                    for c in contents:
+                        self.file.write(c)
+                else:
+                    self.file.write(contents)
+                self.file.flush()
+                self.file.seek(0)
+            except swift_exc.ClientException as e:
+                if e.http_status == 404:
+                    msg = "File '%s' does not exist." % self.path
+                    raise exceptions.InvalidFilePathError(msg)
+                else:
+                    raise exceptions.FileSystemAccessError()
+
+    def write(self, *args, **kwargs):
+        if not self.file:
+            self.file = tempfile.TemporaryFile()
+
+        self.file.write(*args, **kwargs)
 
     def close(self):
-        if self.mode == "w":
-            self.file.seek(0)
-            self._save()
+        if self.mode == 'w':
+            swift = _get_swift_client()
+
+            try:
+                swift.put_container(self.get_directory())
+                self.file.seek(0)
+                swift.put_object(self.get_directory(), self.get_name(),
+                                 self.file)
+            except swift_exc.ClientException as e:
+                if e.http_status == 404:
+                    msg = ("Directory '%s' does not exist. "
+                           "The file object will be closed."
+                           % self.get_directory())
+                    raise exceptions.InvalidDirectoryError(msg)
+                else:
+                    msg = ("Could not save the file to the file system. "
+                           "The file object will be closed.")
+                    raise exceptions.FileSystemAccessError(msg)
+            finally:
+                self.file.close()
+
         self.file.close()
 
     def __getattr__(self, name):
-        return getattr(self.file, name)
+        if self.file:
+            return getattr(self.file, name)
+        else:
+            raise AttributeError("%s instance has no attribute '%s'",
+                                 self.__class__.__name__, name)

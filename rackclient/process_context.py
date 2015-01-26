@@ -1,79 +1,73 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 import json
 import requests
-from rackclient import exceptions
-from rackclient.v1 import client
+from rackclient import client
+from rackclient.exceptions import MetadataAccessError
 
 METADATA_URL = 'http://169.254.169.254/openstack/latest/meta_data.json'
 
 
 class ProcessContext(object):
 
-    def __init__(self, gid=None, ppid=None, pid=None, proxy_ip=None,
-                 proxy_port=8088, api_version='v1', args=None):
-        self.gid = gid
-        self.ppid = ppid
-        self.pid = pid
-        self.proxy_ip = proxy_ip
-        url = 'http://%s:%d/%s' % (proxy_ip, proxy_port, api_version)
-        self.proxy_url = url
-        self._add_args(args)
-        self.client = client.Client(rack_url=self.proxy_url)
+    def __init__(self):
+        self.gid = None
+        self.pid = None
+        self.ppid = None
+        self.proxy_ip = None
+        self.proxy_url = None
+        self.fs_endpoint = None
+        self.shm_endpoint = None
+        self.ipc_endpoint = None
+        self.client = None
 
-    def _add_args(self, args):
-        for (k, v) in args.items():
-            try:
-                setattr(self, k, v)
-            except AttributeError:
-                pass
+    def add_args(self, args):
+        if isinstance(args, dict):
+            for (k, v) in args.items():
+                try:
+                    setattr(self, k, v)
+                except AttributeError:
+                    pass
 
-    def _get_process_list(self):
-        return self.client.processes.list(self.gid)
 
-    def __getattr__(self, k):
-        if k == 'process_list':
-            return self._get_process_list()
+PCTXT = ProcessContext()
 
 
 def _get_metadata(metadata_url):
-    resp = requests.get(metadata_url)
-
-    if resp.text:
-        try:
-            body = json.loads(resp.text)
-        except ValueError:
-            body = None
-    else:
-        body = None
-
-    if body:
-        return body['meta']
-    else:
-        return None
-
-
-def _get_process_context():
     try:
-        metadata = _get_metadata(METADATA_URL)
-        pctxt = ProcessContext(
-            gid=metadata.pop('gid'),
-            ppid=metadata.pop('ppid') if "ppid" in metadata else None,
-            pid=metadata.pop('pid'),
-            proxy_ip=metadata.pop('proxy_ip'),
-            args=metadata)
+        resp = requests.get(metadata_url)
+    except Exception as e:
+        msg = "Could not get the metadata: %s" % e.message
+        raise MetadataAccessError(msg)
 
-        proxy_info = pctxt.client.proxy.get(pctxt.gid)
-        endpoints = {
-            "fs_endpoint": proxy_info.fs_endpoint,
-            "shm_endpoint": proxy_info.shm_endpoint,
-            "ipc_endpoint": proxy_info.ipc_endpoint
-        }
-        pctxt._add_args(endpoints)
-        return pctxt
-    except Exception:
-        raise exceptions.GetProcessContextError()
+    body = json.loads(resp.text)
+    return body['meta']
 
 
-try:
-    PCTXT = _get_process_context()
-except exceptions.GetProcessContextError as e:
-    PCTXT = None
+def init(client_version='1', proxy_port=8088, api_version='v1'):
+    metadata = _get_metadata(METADATA_URL)
+
+    PCTXT.gid = metadata.pop('gid')
+    PCTXT.pid = metadata.pop('pid')
+    PCTXT.ppid = metadata.pop('ppid') if 'ppid' in metadata else None
+    PCTXT.proxy_ip = metadata.pop('proxy_ip')
+    PCTXT.proxy_url = 'http://%s:%d/%s' % \
+                      (PCTXT.proxy_ip, proxy_port, api_version)
+    PCTXT.client = client.Client(client_version, rack_url=PCTXT.proxy_url)
+    PCTXT.add_args(metadata)
+
+    proxy_info = PCTXT.client.proxy.get(PCTXT.gid)
+    PCTXT.fs_endpoint = proxy_info.fs_endpoint
+    PCTXT.shm_endpoint = proxy_info.shm_endpoint
+    PCTXT.ipc_endpoint = proxy_info.ipc_endpoint

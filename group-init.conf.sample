@@ -59,10 +59,3 @@ glance_image_id =
 ### Not required params ###
 #name =
 
-# Userdata file path like /path/to/file
-#userdata =
-
-# Key-value pairs to be passed to metadata server
-# Syntax: args = key1=value1,key2=value2,...
-#args =
-

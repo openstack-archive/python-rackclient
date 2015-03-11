@@ -1,7 +1,8 @@
 import logging
 import redis
 
-from rackclient import process_context
+from rackclient.lib import RACK_CTX
+
 
 
 LOG = logging.getLogger(__name__)
@@ -10,7 +11,7 @@ FIFO = 3
 PORT = 6379
 
 def get_host():
-    return process_context.PCTXT.proxy_ip
+    return RACK_CTX.proxy_ip
 
 
 class Shm(object):

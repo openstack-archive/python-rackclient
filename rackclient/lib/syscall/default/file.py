@@ -1,22 +1,23 @@
+from rackclient.lib import RACK_CTX
+from rackclient import exceptions
+from swiftclient import client as swift_client
+from swiftclient import exceptions as swift_exc
+
 import json
 import logging
 import tempfile
-from swiftclient import client as swift_client
-from swiftclient import exceptions as swift_exc
-from rackclient import process_context
-from rackclient import exceptions
 
 
 LOG = logging.getLogger(__name__)
 
-PCTXT = process_context.PCTXT
 SWIFT_PORT = 8080
 
 
 def _get_swift_client():
-    if PCTXT.fs_endpoint:
+
+    if RACK_CTX.fs_endpoint:
         try:
-            d = json.loads(PCTXT.fs_endpoint)
+            d = json.loads(RACK_CTX.fs_endpoint)
             credentials = {
                 "user": d["os_username"],
                 "key": d["os_password"],
@@ -29,7 +30,7 @@ def _get_swift_client():
             msg = "The format of fs_endpoint is invalid."
             raise exceptions.InvalidFSEndpointError(msg)
     else:
-        authurl = "http://%s:%d/auth/v1.0" % (PCTXT.proxy_ip, SWIFT_PORT)
+        authurl = "http://%s:%d/auth/v1.0" % (RACK_CTX.proxy_ip, SWIFT_PORT)
 
     credentials = {
         "user": "rack:admin",
@@ -38,6 +39,7 @@ def _get_swift_client():
     }
     swift = swift_client.Connection(**credentials)
     authurl, token = swift.get_auth()
+
     return swift_client.Connection(preauthurl=authurl, preauthtoken=token)
 
 

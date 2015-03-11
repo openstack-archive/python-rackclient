@@ -11,16 +11,17 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from mock import patch, Mock
-from rackclient import process_context
-from rackclient.tests import utils
-from rackclient.v1.syscall.default import signal
 import copy
 
-PCTXT = process_context.PCTXT
+from mock import patch, Mock
+from rackclient.tests import utils
+from rackclient.lib.syscall.default import signal
 
 
-class SignalTest(utils.TestCase):
+class SignalTest(utils.LibTestCase):
+
+    def target_context(self):
+        return "syscall.default.signal"
 
     def setUp(self):
         super(SignalTest, self).setUp()
@@ -37,7 +38,7 @@ class SignalTest(utils.TestCase):
 
         mock_websocket_websocketapp.\
             assert_called_with(url=s.url + '/receive',
-                               header=['PID: ' + PCTXT.pid],
+                               header=['PID: ' + self.mock_RACK_CTX.pid],
                                on_message=s.on_message,
                                on_error=s.on_error,
                                on_close=s.on_close)
@@ -73,7 +74,7 @@ class SignalTest(utils.TestCase):
 
         s = signal.SignalManager()
         on_msg_func = 'on_msg_func'
-        PCTXT.pid = None
+        self.mock_RACK_CTX.pid = None
         self.assertRaises(Exception, s.receive, on_msg_func)
 
     def test_on_message(self):

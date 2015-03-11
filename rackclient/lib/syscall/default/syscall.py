@@ -3,14 +3,14 @@ import Queue
 import threading
 
 from rackclient import exceptions
-from rackclient import process_context
 from rackclient.v1 import processes
-from rackclient.v1.syscall.default import messaging
-from rackclient.v1.syscall.default import pipe as rackpipe
-from rackclient.v1.syscall.default import file as rackfile
+from rackclient.lib import RACK_CTX
+from rackclient.lib.syscall.default import messaging
+from rackclient.lib.syscall.default import pipe as rackpipe
+from rackclient.lib.syscall.default import file as rackfile
+
 
 LOG = logging.getLogger(__name__)
-PCTXT = process_context.PCTXT
 
 
 def fork(opt_list, timeout_limit=180):
@@ -20,8 +20,8 @@ def fork(opt_list, timeout_limit=180):
     return_process_list = []
     while True:
         try:
-            child_list = _bulk_fork(PCTXT.pid, opt_list)
-            success_list, error_list = _check_connection(PCTXT.pid,
+            child_list = _bulk_fork(RACK_CTX.pid, opt_list)
+            success_list, error_list = _check_connection(RACK_CTX.pid,
                                                          child_list,
                                                          timeout_limit)
         except Exception as e:
@@ -42,15 +42,25 @@ def fork(opt_list, timeout_limit=180):
 
     return return_process_list
 
+def kill(pid):
+    RACK_CTX.client.processes.delete(RACK_CTX.gid, pid)
 
 def pipe(name=None):
     p = rackpipe.Pipe(name)
     return p
 
+def pipe_reader(name=None):
+    p = rackpipe.Pipe(name)
+    p.close_writer()
+    return p
+
+def pipe_writer(name=None):
+    p = rackpipe.Pipe(name)
+    p.close_reader()
+    return p
 
 def fopen(file_path, mode="r"):
     return rackfile.File(file_path, mode)
-
 
 def _bulk_fork(pid, args_list):
     LOG.debug("start bulk_fork")
@@ -58,13 +68,13 @@ def _bulk_fork(pid, args_list):
 
     def _fork(pid, **kwargs):
         try:
-            child = PCTXT.client.processes.create(gid=PCTXT.gid,
+            child = RACK_CTX.client.processes.create(gid=RACK_CTX.gid,
                                                   ppid=pid,
                                                   **kwargs)
             q.put(child)
         except Exception as e:
             attr = dict(args=kwargs, error=e)
-            q.put(processes.Process(PCTXT.client, attr))
+            q.put(processes.Process(RACK_CTX.client, attr))
 
     tg = []
     process_list = []
@@ -116,7 +126,7 @@ def _check_connection(pid, process_list, timeout):
             actives.append(process)
             pid_list.remove(process.pid)
         else:
-            PCTXT.client.processes.delete(PCTXT.gid, process.pid)
+            RACK_CTX.client.processes.delete(RACK_CTX.gid, process.pid)
             inactives.append(process)
 
     LOG.debug("_check_connection active processes count: %s", len(actives))

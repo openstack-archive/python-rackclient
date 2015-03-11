@@ -1,10 +1,10 @@
-import websocket
 import logging
-from rackclient import process_context
+import websocket
+
+from rackclient.lib import RACK_CTX
 
 LOG = logging.getLogger(__name__)
 
-PCTXT = process_context.PCTXT
 WS_PORT = 8888
 
 
@@ -13,14 +13,14 @@ class SignalManager(object):
         if url:
             self.url = url.rstrip('/')
         else:
-            self.url = "ws://" + ':'.join([PCTXT.proxy_ip, str(WS_PORT)])
+            self.url = "ws://" + ':'.join([RACK_CTX.proxy_ip, str(WS_PORT)])
 
     def receive(self, on_msg_func, pid=None):
         self.on_msg_func = on_msg_func
         if pid:
             header = 'PID: ' + pid
-        elif getattr(PCTXT, 'pid', False):
-            header = 'PID: ' + PCTXT.pid
+        elif getattr(RACK_CTX, 'pid', False):
+            header = 'PID: ' + RACK_CTX.pid
         else:
             raise Exception("Target PID is required.")
         wsapp = websocket.WebSocketApp(

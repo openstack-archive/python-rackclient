@@ -1,47 +1,17 @@
-import logging
-import time
 from datetime import datetime
+from rackclient.lib import RACK_CTX
+from rackclient import exceptions
+
+import logging
 import redis
-from rackclient import process_context
+import time
+
 
 LOG = logging.getLogger(__name__)
 
-PCTXT = process_context.PCTXT
-
-
-class EndOfFile(Exception):
-    message = 'EOF'
-
-
-class NoDescriptor(Exception):
-    message = 'Descriptor Not Found'
-
-    def __init__(self, message=None):
-        self.message = message or self.__class__.message
-
-    def __str__(self):
-        formatted_string = self.message
-        return formatted_string
-
-
-class NoReadDescriptor(NoDescriptor):
-    message = 'Read Descriptor Not Found'
-
-
-class NoWriteDescriptor(NoDescriptor):
-    message = 'Write Descriptor Not Found'
-
-
-def eof():
-    raise EndOfFile()
-
-
-def no_reader():
-    raise NoReadDescriptor()
-
-
-def no_writer():
-    raise NoWriteDescriptor()
+PIPE = 1
+FIFO = 2
+PORT = 6379
 
 
 def read_state_key(name):
@@ -56,16 +26,13 @@ def reference_key_pattern(name="*", pid="*"):
     return name + ":" + pid
 
 
-PIPE = 1
-FIFO = 2
-PORT = 6379
-
-
 class Pipe:
+
     def __init__(self, name=None, read=None, write=None):
         now = datetime.now()
-        self.host = PCTXT.proxy_ip
+        self.host = RACK_CTX.proxy_ip
         self.port = PORT
+
         if name:
             self.is_named = True
             self.r = redis.StrictRedis(host=self.host, port=self.port, db=FIFO)
@@ -75,13 +42,13 @@ class Pipe:
         else:
             self.is_named = False
             self.r = redis.StrictRedis(host=self.host, port=self.port, db=PIPE)
-            parent_pipe = self.r.keys(reference_key_pattern(pid=PCTXT.pid))
+            parent_pipe = self.r.keys(reference_key_pattern(pid=RACK_CTX.pid))
             if parent_pipe:
                 self.name = self.r.get(parent_pipe[0])
             else:
-                self.name = PCTXT.pid
-            read_state = self.r.hget(read_state_key(self.name), PCTXT.pid) or now
-            write_state = self.r.hget(write_state_key(self.name), PCTXT.pid) or now
+                self.name = RACK_CTX.pid
+            read_state = self.r.hget(read_state_key(self.name), RACK_CTX.pid) or now
+            write_state = self.r.hget(write_state_key(self.name), RACK_CTX.pid) or now
         if read is not None:
             if read:
                 read_state = now
@@ -94,12 +61,12 @@ class Pipe:
                 write_state = "close"
         self.read_state = read_state
         self.write_state = write_state
-        self.r.hset(read_state_key(self.name), PCTXT.pid, self.read_state)
-        self.r.hset(write_state_key(self.name), PCTXT.pid, self.write_state)
+        self.r.hset(read_state_key(self.name), RACK_CTX.pid, self.read_state)
+        self.r.hset(write_state_key(self.name), RACK_CTX.pid, self.write_state)
 
     def read(self):
         if self.read_state == "close":
-            no_reader()
+            raise exceptions.NoReadDescriptor()
         data = self._read()
         while data is None:
             data = self._read()
@@ -110,26 +77,26 @@ class Pipe:
         data = self.r.lpop(self.name)
         if data is None and not self.has_writer():
             self.flush()
-            eof()
+            raise exceptions.EndOfFile()
         else:
             return data
 
     def write(self, data):
         if self.write_state == "close":
-            no_writer()
+            raise exceptions.NoWriteDescriptor()
         self.r.rpush(self.name, data)
         if self.has_reader():
             return True
         else:
-            no_reader()
+            raise exceptions.NoReadDescriptor()
 
     def close_reader(self):
         self.read_state = "close"
-        self.r.hset(read_state_key(self.name), PCTXT.pid, self.read_state)
+        self.r.hset(read_state_key(self.name), RACK_CTX.pid, self.read_state)
 
     def close_writer(self):
         self.write_state = "close"
-        self.r.hset(write_state_key(self.name), PCTXT.pid, self.write_state)
+        self.r.hset(write_state_key(self.name), RACK_CTX.pid, self.write_state)
 
     def has_reader(self):
         read_states = self.r.hvals(read_state_key(self.name))
@@ -158,9 +125,9 @@ class Pipe:
         self.r.delete(*tuple(keys))
 
     @classmethod
-    def flush_by_pid(cls, pid, host=None):
+    def flush_by_pid(self, pid, host=None):
         if not host:
-            host = PCTXT.proxy_ip
+            host = RACK_CTX.proxy_ip
 
         r = redis.StrictRedis(host=host, port=PORT, db=PIPE)
         keys = [pid,
@@ -172,7 +139,7 @@ class Pipe:
     @classmethod
     def flush_by_name(cls, name, host=None):
         if not host:
-            host = PCTXT.proxy_ip
+            host = RACK_CTX.proxy_ip
 
         r = redis.StrictRedis(host=host, port=PORT, db=FIFO)
         keys = [name,
@@ -183,8 +150,8 @@ class Pipe:
     @classmethod
     def share(cls, ppid, pid, host=None):
         if not host:
-            host = PCTXT.proxy_ip
-        
+            host = RACK_CTX.proxy_ip
+
         now = datetime.now()
         r = redis.StrictRedis(host=host, port=PORT, db=PIPE)
         keys = r.keys(reference_key_pattern(pid=ppid))

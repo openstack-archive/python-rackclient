@@ -11,16 +11,19 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+import datetime
+
+from rackclient import exceptions
 from mock import patch
 from rackclient.tests import utils
-from rackclient.v1.syscall.default import pipe
-from rackclient import process_context
-import datetime
-   
-PCTXT = process_context.PCTXT
-   
-class PipeTest(utils.TestCase):
-   
+from rackclient.lib.syscall.default import pipe
+
+
+class PipeTest(utils.LibTestCase):
+
+    def target_context(self):
+        return "syscall.default.pipe"
+
     def setUp(self):
         super(PipeTest, self).setUp()
         patcher = patch('redis.StrictRedis')
@@ -100,13 +103,13 @@ class PipeTest(utils.TestCase):
         self.ins_redis.lpop.return_value = None
         self.ins_redis.hvals.return_value = ["close","close"]
         real = pipe.Pipe(read="read", write="write")
-        self.assertRaises(pipe.EndOfFile, real.read)
+        self.assertRaises(exceptions.EndOfFile, real.read)
    
     def test_read_NoReadDescriptor(self):
         self.ins_redis.lpop.return_value = None
         self.ins_redis.hvals.return_value = ["close","close"]
         real = pipe.Pipe(read="", write="")
-        self.assertRaises(pipe.NoReadDescriptor, real.read)
+        self.assertRaises(exceptions.NoReadDescriptor, real.read)
    
     def test_write(self):
         real = pipe.Pipe(read="read",write="write")
@@ -117,13 +120,13 @@ class PipeTest(utils.TestCase):
     def test_write_NoReadDescriptor(self):
         real = pipe.Pipe(read="read",write="write")
         self.ins_redis.hvals.return_value = ["close","close"]
-        self.assertRaises(pipe.NoReadDescriptor, real.write, "data")
+        self.assertRaises(exceptions.NoReadDescriptor, real.write, "data")
         self.assertTrue(self.ins_redis.rpush.call_count == 1)
    
     def test_write_NoWriteDescriptor(self):
         real = pipe.Pipe(read="",write="")
         self.ins_redis.hvals.return_value = ["close","close"]
-        self.assertRaises(pipe.NoWriteDescriptor, real.write, "data")
+        self.assertRaises(exceptions.NoWriteDescriptor, real.write, "data")
         self.assertTrue(self.ins_redis.rpush.call_count == 0)
    
     def test_close_reader(self):
@@ -214,7 +217,7 @@ class PipeTest(utils.TestCase):
             @classmethod
             def now(cls):
                 return mydatetime
-        patcher = patch("rackclient.v1.syscall.default.pipe.datetime", FakeDateTime)
+        patcher = patch("rackclient.lib.syscall.default.pipe.datetime", FakeDateTime)
         patcher.start()
         self.ins_redis.keys.side_effect = [[], ["data"]]
         self.ins_redis.hget.side_effect = ["read", "write"]
@@ -228,5 +231,5 @@ class PipeTest(utils.TestCase):
         self.assertFalse(pipe.Pipe.share("ppid", "pid"))
 
     def test_NoDescriptor_str_(self):
-        self.assertEquals("Descriptor Not Found", pipe.NoDescriptor().__str__())
+        self.assertEquals("Descriptor Not Found", exceptions.NoDescriptor().__str__())
         

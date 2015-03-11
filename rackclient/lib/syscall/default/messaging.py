@@ -1,31 +1,33 @@
+from rackclient.lib import RACK_CTX
+from rackclient import exceptions
+
 import cPickle
 import logging
 import pika
-from rackclient import exceptions
-from rackclient import process_context
+
 
 LOG = logging.getLogger(__name__)
-PCTXT = process_context.PCTXT
 
 
 class Messaging(object):
+
     def __init__(self):
-        self.connection = _create_connection()
+        self.connection = self._create_connection()
         self.channel = self.connection.channel()
-        self.declare_queue(PCTXT.pid)
+        self.declare_queue(RACK_CTX.pid)
 
     def declare_queue(self, queue_name):
         queue_name = str(queue_name)
-        self.channel.exchange_declare(exchange=PCTXT.gid, type='topic')
+        self.channel.exchange_declare(exchange=RACK_CTX.gid, type='topic')
         self.channel.queue_declare(queue=queue_name)
-        self.channel.queue_bind(exchange=PCTXT.gid,
+        self.channel.queue_bind(exchange=RACK_CTX.gid,
                                 queue=queue_name,
-                                routing_key=PCTXT.gid + '.' + queue_name)
+                                routing_key=RACK_CTX.gid + '.' + queue_name)
 
     def receive_all_msg(self, queue_name=None,
                         timeout_limit=180, msg_limit_count=None):
         if not queue_name:
-            queue_name = PCTXT.pid
+            queue_name = RACK_CTX.pid
 
         self.channel = self.connection.channel()
         receive = self.Receive()
@@ -42,7 +44,7 @@ class Messaging(object):
 
     def receive_msg(self, queue_name=None, timeout_limit=180):
         if not queue_name:
-            queue_name = PCTXT.pid
+            queue_name = RACK_CTX.pid
         self.channel = self.connection.channel()
         receive = self.Receive()
         timeout_limit = int(timeout_limit)
@@ -79,36 +81,22 @@ class Messaging(object):
             self.channel.stop_consuming()
 
     def send_msg(self, target, message=None):
-        routing_key = PCTXT.gid + '.' + target
-        send_dict = {'pid': PCTXT.pid}
+        routing_key = RACK_CTX.gid + '.' + target
+        send_dict = {'pid': RACK_CTX.pid}
         if message:
             send_dict['message'] = message
         send_msg = cPickle.dumps(send_dict)
-        self.channel.basic_publish(exchange=PCTXT.gid,
+        self.channel.basic_publish(exchange=RACK_CTX.gid,
                                    routing_key=routing_key,
                                    body=send_msg)
 
-
-def _create_connection():
-    if PCTXT.ipc_endpoint:
-        connection_param = pika.ConnectionParameters(PCTXT.ipc_endpoint)
-    else:
-        connection_param = pika.ConnectionParameters(PCTXT.proxy_ip)
-    try:
-        connection = pika.BlockingConnection(connection_param)
-    except pika.exceptions.AMQPConnectionError as e:
-        raise exceptions.AMQPConnectionError(e)
-    return connection
-
-
-def init():
-    msg = Messaging()
-    if PCTXT.ppid:
-        LOG.debug("Messaging: send message to %s", PCTXT.ppid)
-        msg.send_msg(PCTXT.ppid)
-        while True:
-            receive_msg = msg.receive_msg()
-            if receive_msg and PCTXT.ppid == receive_msg.get("pid"):
-                LOG.debug("Messaging: receive message from %s",
-                          receive_msg.get("pid"))
-                break
+    def _create_connection(self):
+        if RACK_CTX.ipc_endpoint:
+            connection_param = pika.ConnectionParameters(RACK_CTX.ipc_endpoint)
+        else:
+            connection_param = pika.ConnectionParameters(RACK_CTX.proxy_ip)
+        try:
+            connection = pika.BlockingConnection(connection_param)
+        except pika.exceptions.AMQPConnectionError as e:
+            raise exceptions.AMQPConnectionError(e)
+        return connection

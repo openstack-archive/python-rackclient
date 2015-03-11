@@ -11,39 +11,35 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from rackclient import process_context
 from rackclient.tests import utils
 from rackclient.v1 import processes
-from rackclient.v1.syscall.default import file
-from rackclient.v1.syscall.default import messaging
-from rackclient.v1.syscall.default import pipe
-from rackclient.v1.syscall.default import syscall
-
+from rackclient.lib.syscall.default import messaging, file, syscall, pipe
 from mock import call
 from mock import Mock
 
-PCTXT = process_context.PCTXT
 
+class SyscallTest(utils.LibTestCase):
 
-class SyscallTest(utils.TestCase):
+    def target_context(self):
+        return "syscall.default.syscall"
 
     def setUp(self):
         super(SyscallTest, self).setUp()
 
     def test_fork(self):
         def create_process(gid, ppid, **kwargs):
-            count = PCTXT.client.processes.create.call_count
+            count = self.mock_RACK_CTX.client.processes.create.call_count
             d = {'ppid': ppid,
                  'pid': 'pid' + str(count),
                  'gid': gid,
-                 'proxy_ip': PCTXT.proxy_ip}
+                 'proxy_ip': self.mock_RACK_CTX.proxy_ip}
             args = kwargs['args']
             args.update(d)
             kwargs.update(d)
-            return_process = processes.Process(PCTXT.client, kwargs)
+            return_process = processes.Process(self.mock_RACK_CTX.client, kwargs)
             return return_process
 
-        PCTXT.client.processes.create = Mock(side_effect=create_process)
+        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=create_process)
         # messaging mock
         mock_messaging = Mock()
         messaging.Messaging = Mock(return_value=mock_messaging)
@@ -74,28 +70,28 @@ class SyscallTest(utils.TestCase):
         expected_arg_list = [arg1, arg2, arg3]
         for process in process_list:
             self.assertTrue(process.args in expected_arg_list)
-            self.assertEqual(process.ppid, PCTXT.pid)
-            self.assertEqual(process.gid, PCTXT.gid)
+            self.assertEqual(process.ppid, self.mock_RACK_CTX.pid)
+            self.assertEqual(process.gid, self.mock_RACK_CTX.gid)
             expected_arg_list.remove(process.args)
 
     def test_bulk_fork_check_connection_recoverable_error(self):
         # setup
         def create_process(gid, ppid, **kwargs):
-            count = PCTXT.client.processes.create.call_count
+            count = self.mock_RACK_CTX.client.processes.create.call_count
             if count == 2:
                 raise Exception()
             d = {'ppid': ppid,
                  'pid': 'pid' + str(count),
                  'gid': gid,
-                 'proxy_ip': PCTXT.proxy_ip}
+                 'proxy_ip': self.mock_RACK_CTX.proxy_ip}
             args = kwargs['args']
             args.update(d)
             kwargs.update(d)
-            return_process = processes.Process(PCTXT.client, kwargs)
+            return_process = processes.Process(self.mock_RACK_CTX.client, kwargs)
             return return_process
 
-        PCTXT.client.processes.create = Mock(side_effect=create_process)
-        PCTXT.client.processes.delete = Mock()
+        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=create_process)
+        self.mock_RACK_CTX.client.processes.delete = Mock()
 
         # messaging mock
         mock_messaging = Mock()
@@ -116,7 +112,7 @@ class SyscallTest(utils.TestCase):
         process_list = syscall.fork(arg_list)
 
         # check
-        PCTXT.client.processes.delete.assert_called_with(PCTXT.gid, 'pid1')
+        self.mock_RACK_CTX.client.processes.delete.assert_called_with(self.mock_RACK_CTX.gid, 'pid1')
         expected_pipe_share = [call('pid', 'pid3'),
                                call('pid', 'pid4'),
                                call('pid', 'pid5')]
@@ -129,12 +125,12 @@ class SyscallTest(utils.TestCase):
         expected_arg_list = [arg1, arg2, arg3]
         for process in process_list:
             self.assertTrue(process.args in expected_arg_list)
-            self.assertEqual(process.ppid, PCTXT.pid)
-            self.assertEqual(process.gid, PCTXT.gid)
+            self.assertEqual(process.ppid, self.mock_RACK_CTX.pid)
+            self.assertEqual(process.gid, self.mock_RACK_CTX.gid)
             expected_arg_list.remove(process.args)
 
     def test_bulk_fork_error_no_child_process_is_created(self):
-        PCTXT.client.processes.create = Mock(side_effect=Exception)
+        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=Exception)
         # call fork
         arg1 = {'test': 'test1'}
         arg2 = {'test': 'test2'}
@@ -147,19 +143,19 @@ class SyscallTest(utils.TestCase):
     def test_check_connection_error_no_child_process_is_active(self):
         # setup
         def create_process(gid, ppid, **kwargs):
-            count = PCTXT.client.processes.create.call_count
+            count = self.mock_RACK_CTX.client.processes.create.call_count
             d = {'ppid': ppid,
                  'pid': 'pid' + str(count),
                  'gid': gid,
-                 'proxy_ip': PCTXT.proxy_ip}
+                 'proxy_ip': self.mock_RACK_CTX.proxy_ip}
             args = kwargs['args']
             args.update(d)
             kwargs.update(d)
-            return_process = processes.Process(PCTXT.client, kwargs)
+            return_process = processes.Process(self.mock_RACK_CTX.client, kwargs)
             return return_process
 
-        PCTXT.client.processes.create = Mock(side_effect=create_process)
-        PCTXT.client.processes.delete = Mock()
+        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=create_process)
+        self.mock_RACK_CTX.client.processes.delete = Mock()
         # messaging mock
         mock_messaging = Mock()
         messaging.Messaging = Mock(return_value=mock_messaging)
@@ -171,11 +167,11 @@ class SyscallTest(utils.TestCase):
                     {'args': {'test': 'test2'}},
                     {'args': {'test': 'test3'}}]
         self.assertRaises(Exception, syscall.fork, arg_list)
-        expected_processes_delete = [call(PCTXT.gid, 'pid1'),
-                                     call(PCTXT.gid, 'pid2'),
-                                     call(PCTXT.gid, 'pid3')]
+        expected_processes_delete = [call(self.mock_RACK_CTX.gid, 'pid1'),
+                                     call(self.mock_RACK_CTX.gid, 'pid2'),
+                                     call(self.mock_RACK_CTX.gid, 'pid3')]
         self.assertEqual(expected_processes_delete,
-                         PCTXT.client.processes.delete.call_args_list)
+                         self.mock_RACK_CTX.client.processes.delete.call_args_list)
 
     def test_pipe_no_arg(self):
         pipe.Pipe = Mock()

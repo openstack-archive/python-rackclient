@@ -13,12 +13,12 @@
 #    limitations under the License.
 from mock import patch
 from rackclient.tests import utils
-from rackclient.v1.syscall.default import shm
-from rackclient import process_context
+from rackclient.lib.syscall.default import shm
 
-PCTXT = process_context.PCTXT
+class ShmTest(utils.LibTestCase):
 
-class ShmTest(utils.TestCase):
+    def target_context(self):
+        return "syscall.default.shm"
 
     def setUp(self):
         super(ShmTest, self).setUp()

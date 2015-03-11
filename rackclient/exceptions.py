@@ -146,3 +146,26 @@ class InvalidProcessError(BaseError):
 
 class ProcessInitError(BaseError):
     pass
+
+
+class EndOfFile(Exception):
+    message = 'EOF'
+
+
+class NoDescriptor(Exception):
+    message = 'Descriptor Not Found'
+
+    def __init__(self, message=None):
+        self.message = message or self.__class__.message
+
+    def __str__(self):
+        formatted_string = self.message
+        return formatted_string
+
+
+class NoReadDescriptor(NoDescriptor):
+    message = 'Read Descriptor Not Found'
+
+
+class NoWriteDescriptor(NoDescriptor):
+    message = 'Write Descriptor Not Found'

@@ -11,20 +11,21 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from mock import patch
 from swiftclient import exceptions as swift_exc
+
+from mock import patch
 from rackclient.tests import utils
-from rackclient.v1.syscall.default import file as rackfile
-from rackclient import process_context
+from rackclient.lib.syscall.default import file as rackfile
 from rackclient.exceptions import InvalidFSEndpointError
 from rackclient.exceptions import InvalidDirectoryError
 from rackclient.exceptions import InvalidFilePathError
 from rackclient.exceptions import FileSystemAccessError
 
-PCTXT = process_context.PCTXT
 
+class FileTest(utils.LibTestCase):
 
-class FileTest(utils.TestCase):
+    def target_context(self):
+        return "syscall.default.file"
 
     def setUp(self):
         super(FileTest, self).setUp()
@@ -49,7 +50,7 @@ class FileTest(utils.TestCase):
                    '"os_password": "password", '
                    '"os_tenant_name": "tenant", '
                    '"os_auth_url": "http://www.example.com:5000/v2.0"}')
-        PCTXT.fs_endpoint = endpoint
+        self.mock_RACK_CTX.fs_endpoint = endpoint
         rackfile._get_swift_client()
         expected = {
             "user": 'user',
@@ -61,7 +62,7 @@ class FileTest(utils.TestCase):
         self.mock_conn.assert_any_call(**expected)
 
     def test_get_swift_client_invalid_fs_endpoint_error(self):
-        PCTXT.fs_endpoint = 'invalid'
+        self.mock_RACK_CTX.fs_endpoint = 'invalid'
         self.assertRaises(InvalidFSEndpointError, rackfile._get_swift_client)
 
     def test_listdir(self):

@@ -11,26 +11,24 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from rackclient import process_context
-from rackclient.v1.syscall.default import messaging
-from rackclient import exceptions
-
-PCTXT = process_context.PCTXT
+import argparse
 
 
-def _is_exist():
+def keyvalue_to_dict(string):
+    """
+    Return a dict made from comma separated key-value strings
+
+    :param string: comma separated key-value pairs
+                   like 'key1=value1,key2=value2'
+    :return: dict
+    """
     try:
-        PCTXT.client.processes.get(PCTXT.gid, PCTXT.pid)
-    except exceptions.NotFound:
-        msg = "This process is not recognized by RACK"
-        raise exceptions.InvalidProcessError(msg)
-
-
-def init():
-    try:
-        process_context.init()
-        _is_exist()
-        messaging.init()
-    except Exception as e:
-        msg = "Failed to initialize the process: %s." % e.message
-        raise exceptions.ProcessInitError(msg)
+        d = {}
+        pairs = string.split(',')
+        for pair in pairs:
+            (k, v) = pair.split('=', 1)
+            d.update({k: v})
+        return d
+    except ValueError:
+        msg = "%r is not in the format of key=value" % string
+        raise argparse.ArgumentTypeError(msg)

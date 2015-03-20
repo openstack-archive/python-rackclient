@@ -125,7 +125,8 @@ class CreateNetwork(ShowOne):
                             help="Gateway ip address of the new network")
         parser.add_argument('--dns-nameserver', metavar='<x.x.x.x>',
                             dest='dns_nameservers', action='append',
-                            help="DNS server for the new network (Can be repeated)")
+                            help=("DNS server for the new network "
+                                 "(Can be repeated)"))
         parser.add_argument('--ext-router-id', metavar='<router-id>',
                             help="Router id the new network connects to")
 
@@ -174,6 +175,5 @@ class DeleteNetwork(Command):
         return parser
 
     def take_action(self, parsed_args):
-        network = self.client.networks.delete(self.gid,
-                                              parsed_args.network_id)
-
+        self.client.networks.delete(self.gid,
+                                    parsed_args.network_id)

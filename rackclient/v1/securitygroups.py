@@ -43,9 +43,11 @@ class SecuritygroupManager(base.Manager):
         :param securitygroup_id: ID of the securitygroup to get.
         :rtype: Securitygroup.
         """
-        return self._get("/groups/%s/securitygroups/%s" % (gid, securitygroup_id), "securitygroup")
+        return self._get("/groups/%s/securitygroups/%s" %
+                         (gid, securitygroup_id), "securitygroup")
 
-    def create(self, gid, name=None, is_default=False, securitygroup_rules=None):
+    def create(self, gid, name=None, is_default=False,
+               securitygroup_rules=None):
         """
         Create a securitygroup.
 
@@ -61,7 +63,8 @@ class SecuritygroupManager(base.Manager):
 
         if securitygroup_rules is not None:
             if not isinstance(securitygroup_rules, list):
-                raise exceptions.CommandError("securitygroup_rules must be a list")
+                raise exceptions.CommandError(
+                    "securitygroup_rules must be a list")
 
         body = {
             "securitygroup": {
@@ -70,7 +73,8 @@ class SecuritygroupManager(base.Manager):
                 "securitygrouprules": securitygroup_rules
             }
         }
-        return self._create("/groups/%s/securitygroups" % gid, body, "securitygroup")
+        return self._create("/groups/%s/securitygroups" %
+                            gid, body, "securitygroup")
 
     def update(self, gid, securitygroup_id, is_default=False):
         """
@@ -90,7 +94,8 @@ class SecuritygroupManager(base.Manager):
                 "is_default": is_default,
             }
         }
-        return self._update("/groups/%s/securitygroups/%s" % (gid, securitygroup_id), body, "securitygroup")
+        return self._update("/groups/%s/securitygroups/%s" %
+                            (gid, securitygroup_id), body, "securitygroup")
 
     def delete(self, gid, securitygroup_id):
         """

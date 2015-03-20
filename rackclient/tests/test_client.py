@@ -19,6 +19,7 @@ import requests
 from rackclient import client
 from rackclient.tests import utils
 
+
 class ClientTest(utils.TestCase):
 
     def test_log_req(self):

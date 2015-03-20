@@ -1,3 +1,16 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 import logging
 import Queue
 import threading
@@ -42,25 +55,6 @@ def fork(opt_list, timeout_limit=180):
 
     return return_process_list
 
-def kill(pid):
-    RACK_CTX.client.processes.delete(RACK_CTX.gid, pid)
-
-def pipe(name=None):
-    p = rackpipe.Pipe(name)
-    return p
-
-def pipe_reader(name=None):
-    p = rackpipe.Pipe(name)
-    p.close_writer()
-    return p
-
-def pipe_writer(name=None):
-    p = rackpipe.Pipe(name)
-    p.close_reader()
-    return p
-
-def fopen(file_path, mode="r"):
-    return rackfile.File(file_path, mode)
 
 def _bulk_fork(pid, args_list):
     LOG.debug("start bulk_fork")
@@ -69,8 +63,8 @@ def _bulk_fork(pid, args_list):
     def _fork(pid, **kwargs):
         try:
             child = RACK_CTX.client.processes.create(gid=RACK_CTX.gid,
-                                                  ppid=pid,
-                                                  **kwargs)
+                                                     ppid=pid,
+                                                     **kwargs)
             q.put(child)
         except Exception as e:
             attr = dict(args=kwargs, error=e)
@@ -137,3 +131,16 @@ def _check_connection(pid, process_list, timeout):
         raise Exception(msg)
 
     return actives, inactives
+
+
+def kill(pid):
+    RACK_CTX.client.processes.delete(RACK_CTX.gid, pid)
+
+
+def pipe(name=None):
+    p = rackpipe.Pipe(name)
+    return p
+
+
+def fopen(file_path, mode="r"):
+    return rackfile.File(file_path, mode)

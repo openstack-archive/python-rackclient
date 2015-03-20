@@ -43,7 +43,8 @@ class KeypairManager(base.Manager):
         :param keypair_id: ID of the keypair to get.
         :rtype: Keypair.
         """
-        return self._get("/groups/%s/keypairs/%s" % (gid, keypair_id), "keypair")
+        return self._get("/groups/%s/keypairs/%s" %
+                         (gid, keypair_id), "keypair")
 
     def create(self, gid, name=None, is_default=False):
         """
@@ -84,7 +85,8 @@ class KeypairManager(base.Manager):
                 "is_default": is_default
             }
         }
-        return self._update("/groups/%s/keypairs/%s" % (gid, keypair_id), body, "keypair")
+        return self._update("/groups/%s/keypairs/%s" %
+                            (gid, keypair_id), body, "keypair")
 
     def delete(self, gid, keypair_id):
         """

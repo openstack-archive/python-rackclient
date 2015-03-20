@@ -62,10 +62,12 @@ class PS(Lister):
 
 def _make_print_data(pid, ppid, name, nova_instance_id, nova_flavor_id,
                      glance_image_id, keypair_id, securitygroup_ids, networks,
-                     userdata, args, app_status, gid, user_id, project_id, status=None):
+                     userdata, args, app_status, gid, user_id, project_id,
+                     status=None):
     columns = ['pid', 'ppid', 'name', 'nova_instance_id', 'nova_flavor_id',
-               'glance_image_id', 'keypair_id', 'securitygroup_ids', 'networks',
-               'userdata', 'args', 'app_status', 'gid', 'user_id', 'project_id']
+               'glance_image_id', 'keypair_id', 'securitygroup_ids',
+               'networks', 'userdata', 'args', 'app_status', 'gid', 'user_id',
+               'project_id']
     data = [pid, ppid, name, nova_instance_id, nova_flavor_id,
             glance_image_id, keypair_id, securitygroup_ids, networks,
             userdata, args, app_status, gid, user_id, project_id]
@@ -169,7 +171,8 @@ class Boot(ShowOne):
                             help="Userdata file path")
         parser.add_argument('--args', metavar='<key1=value1,key2=value2,...>',
                             type=utils.keyvalue_to_dict,
-                            help="Key-value pairs to be passed to metadata server")
+                            help=("Key-value pairs to be passed to "
+                                  "metadata server"))
 
         return parser
 
@@ -183,15 +186,15 @@ class Boot(ShowOne):
                     "Can't open '%s'" % parsed_args.userdata)
 
         process = self.client.processes.create(
-                        gid=self.gid,
-                        ppid=parsed_args.ppid,
-                        name=parsed_args.name,
-                        nova_flavor_id=parsed_args.flavor,
-                        glance_image_id=parsed_args.image,
-                        keypair_id=parsed_args.keypair,
-                        securitygroup_ids=parsed_args.securitygroup_ids,
-                        userdata=userdata,
-                        args=parsed_args.args)
+            gid=self.gid,
+            ppid=parsed_args.ppid,
+            name=parsed_args.name,
+            nova_flavor_id=parsed_args.flavor,
+            glance_image_id=parsed_args.image,
+            keypair_id=parsed_args.keypair,
+            securitygroup_ids=parsed_args.securitygroup_ids,
+            userdata=userdata,
+            args=parsed_args.args)
 
         sg_ids = process.securitygroup_ids
         if sg_ids:
@@ -245,5 +248,4 @@ class Kill(Command):
         return parser
 
     def take_action(self, parsed_args):
-        process = self.client.processes.delete(self.gid, parsed_args.pid)
-
+        self.client.processes.delete(self.gid, parsed_args.pid)

@@ -44,9 +44,11 @@ class NetworkManager(base.Manager):
         :param network_id: ID of the network to get.
         :rtype: Network.
         """
-        return self._get("/groups/%s/networks/%s" % (gid, network_id), "network")
+        return self._get("/groups/%s/networks/%s" %
+                         (gid, network_id), "network")
 
-    def create(self, gid, cidr, name=None, is_admin=False, gateway=None, dns_nameservers=None, ext_router_id=None):
+    def create(self, gid, cidr, name=None, is_admin=False,
+               gateway=None, dns_nameservers=None, ext_router_id=None):
         """
         Create a network.
 
@@ -72,7 +74,7 @@ class NetworkManager(base.Manager):
             return True
 
         if not _is_valid_cidr(cidr):
-                raise exceptions.CommandError("cidr must be a CIDR.")
+            raise exceptions.CommandError("cidr must be a CIDR.")
 
         if is_admin:
             try:
@@ -83,7 +85,8 @@ class NetworkManager(base.Manager):
         if gateway and not netaddr.valid_ipv4(gateway):
             raise exceptions.CommandError("gateway must be a IP address")
 
-        if dns_nameservers is not None and not isinstance(dns_nameservers, list):
+        if dns_nameservers is not None and not isinstance(
+                dns_nameservers, list):
             raise exceptions.CommandError("dns_nameservers must be a list")
 
         body = {
@@ -101,7 +104,7 @@ class NetworkManager(base.Manager):
     def delete(self, gid, network_id):
         """
         Delete a network.
-        
+
         :param gid: ID of the group.
         :param network_id: ID of the network to delete.
         """

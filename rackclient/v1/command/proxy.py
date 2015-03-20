@@ -25,9 +25,9 @@ def _make_print_data(pid, ppid, name, nova_instance_id, nova_flavor_id,
                      userdata, args, app_status, fs_endpoint, ipc_endpoint,
                      shm_endpoint, gid, user_id, project_id, status=None):
     columns = ['pid', 'ppid', 'name', 'nova_instance_id', 'nova_flavor_id',
-               'glance_image_id', 'keypair_id', 'securitygroup_ids', 'networks',
-               'userdata', 'args', 'app_status', 'fs_endpoint', 'ipc_endpoint',
-               'shm_endpoint', 'gid', 'user_id', 'project_id']
+               'glance_image_id', 'keypair_id', 'securitygroup_ids',
+               'networks', 'userdata', 'args', 'app_status', 'fs_endpoint',
+               'ipc_endpoint', 'shm_endpoint', 'gid', 'user_id', 'project_id']
     data = [pid, ppid, name, nova_instance_id, nova_flavor_id,
             glance_image_id, keypair_id, securitygroup_ids, networks,
             userdata, args, app_status, fs_endpoint, ipc_endpoint,
@@ -117,23 +117,27 @@ class CreateProxy(ShowOne):
         parser.add_argument('--securitygroup', metavar='<securitygroup-id>',
                             dest='securitygroup', action='append',
                             default=[],
-                            help="Securitygroup id the rack-proxy process belongs to (Can be repeated)")
+                            help=("Securitygroup id the rack-proxy process "
+                                  "belongs to (Can be repeated)"))
         parser.add_argument('--flavor', metavar='<nova-flavor-id>',
                             required=True,
-                            help="(Required) Flavor id of the rack-proxy process")
+                            help=("(Required) Flavor id of "
+                                  "the rack-proxy process"))
         parser.add_argument('--image', metavar='<glance-image-id>',
                             required=True,
-                            help="(Required) Image id that registered on Glance of the rack-proxy process")
+                            help=("(Required) Image id that registered "
+                                  "on Glance of the rack-proxy process"))
 
         return parser
 
     def take_action(self, parsed_args):
-        proxy = self.client.proxy.create(self.gid,
-                                         name=parsed_args.name,
-                                         nova_flavor_id=parsed_args.flavor,
-                                         glance_image_id=parsed_args.image,
-                                         keypair_id=parsed_args.keypair,
-                                         securitygroup_ids=parsed_args.securitygroup)
+        proxy = self.client.proxy.create(
+            self.gid,
+            ame=parsed_args.name,
+            ova_flavor_id=parsed_args.flavor,
+            lance_image_id=parsed_args.image,
+            eypair_id=parsed_args.keypair,
+            ecuritygroup_ids=parsed_args.securitygroup)
 
         sg_ids = proxy.securitygroup_ids
         if sg_ids:
@@ -236,4 +240,3 @@ class UpdateProxy(ShowOne):
             proxy.user_id,
             proxy.project_id
         )
-

@@ -32,12 +32,15 @@ class MessagingTest(utils.LibTestCase):
         self.mock_connection = Mock()
         self.mock_channel = Mock()
         self.mock_receive = Mock(spec=rack_ipc.Messaging.Receive)
-        self.patch_pika_blocking = patch('pika.BlockingConnection',
-                                         autospec=True)
-        self.addCleanup(self.patch_pika_blocking.stop)
+        self.patch_pika_blocking = patch('pika.BlockingConnection', autospec=True)
+        # self.addCleanup(self.patch_pika_blocking.stop)
         self.mock_pika_blocking = self.patch_pika_blocking.start()
         self.mock_pika_blocking.return_value = self.mock_connection
         self.mock_connection.channel.return_value = self.mock_channel
+
+    def tearDown(self):
+        super(MessagingTest, self).tearDown()
+        self.patch_pika_blocking.stop()
 
     def test_declare_queue(self):
         queue_name = 'test_queue_name'
@@ -176,39 +179,21 @@ class MessagingTest(utils.LibTestCase):
         receive.time_out()
         self.mock_channel.stop_consuming.assert_called_with()
 
-    #@patch('rackclient.v1.syscall.default.messaging.Messaging',
-    #       autospec=True)
-    # def test_init(self, msg):
-    #     rack_ipc.init()
-    #     msg.assert_called_with()
-    #
-    # @patch('rackclient.v1.syscall.default.messaging.Messaging',
-    #        autospec=True)
-    # def test_init_child(self, msg):
-    #     self.mock_RACK_CTX.ppid = 'PPID'
-    #     receive_msg = {'pid': self.mock_RACK_CTX.ppid}
-    #     mock_messaging = Mock()
-    #     msg.return_value = mock_messaging
-    #     mock_messaging.receive_msg.return_value = receive_msg
-    #     rack_ipc.init()
-    #     mock_messaging.send_msg.asset_called_with(self.mock_RACK_CTX.ppid)
-    #     mock_messaging.receive_msg.assert_called_onece_with()
+    def test_create_connection(self):
+        p = patch('pika.ConnectionParameters', autospec=True)
+        self.addCleanup(p.stop)
+        mock_pika_connection_param = p.start()
+        rack_ipc.Messaging()
+        mock_pika_connection_param.assert_called_with(self.mock_RACK_CTX.proxy_ip)
 
-    # @patch('pika.ConnectionParameters', autospec=True)
-    # def test_create_connection(self, mock_pika_connection_param):
-    #     rack_ipc._create_connection()
-    #     mock_pika_connection_param.assert_called_with(self.mock_RACK_CTX.proxy_ip)
-    #
-    # @patch('pika.ConnectionParameters', autospec=True)
-    # def test_create_connection_ipc_endpoint(self, mock_pika_connection_param):
-    #     ipc_ip = 'ipc_ip'
-    #     self.mock_RACK_CTX.ipc_endpoint = ipc_ip
-    #
-    #     rack_ipc._create_connection()
-    #     mock_pika_connection_param.assert_called_with(ipc_ip)
-    #
-    # def test_create_connection_amqp_connection_error(self):
-    #     self.mock_pika_blocking.side_effect = pika.\
-    #         exceptions.AMQPConnectionError()
-    #     self.assertRaises(exceptions.AMQPConnectionError,
-    #                       rack_ipc._create_connection)
+    @patch('pika.ConnectionParameters', autospec=True)
+    def test_create_connection_ipc_endpoint(self, mock_pika_connection_param):
+        ipc_ip = 'ipc_ip'
+        self.mock_RACK_CTX.ipc_endpoint = ipc_ip
+        rack_ipc.Messaging()
+        mock_pika_connection_param.assert_called_with(ipc_ip)
+
+    def test_create_connection_amqp_connection_error(self):
+        self.mock_pika_blocking.side_effect = pika.\
+            exceptions.AMQPConnectionError()
+        self.assertRaises(exceptions.AMQPConnectionError, rack_ipc.Messaging)

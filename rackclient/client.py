@@ -15,7 +15,6 @@ import copy
 import json
 import logging
 import requests
-from rackclient.openstack.common.gettextutils import _
 from rackclient import exceptions
 from rackclient.openstack.common import importutils
 
@@ -123,9 +122,9 @@ def get_client_class(version):
     try:
         client_path = version_map[str(version)]
     except (KeyError, ValueError):
-        msg = _("Invalid client version '%(version)s'. must be one of: "
-                "%(keys)s") % {'version': version,
-                               'keys': ', '.join(version_map.keys())}
+        msg = ("Invalid client version '%(version)s'. must be one of: "
+               "%(keys)s") % {'version': version,
+                              'keys': ', '.join(version_map.keys())}
         raise exceptions.UnsupportedVersion(msg)
 
     return importutils.import_class(client_path)

@@ -55,7 +55,8 @@ class ListSecuritygroups(Lister):
         securitygroups = self.client.securitygroups.list(self.gid)
         return (
             ('securitygroup_id', 'name', 'is_default', 'status'),
-            ((s.securitygroup_id, s.name, s.is_default, s.status) for s in securitygroups)
+            ((s.securitygroup_id, s.name, s.is_default, s.status)
+             for s in securitygroups)
         )
 
 
@@ -81,8 +82,9 @@ class ShowSecuritygroup(ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        securitygroup = self.client.securitygroups.get(self.gid,
-                                                       parsed_args.securitygroup_id)
+        securitygroup = self.client.securitygroups.get(
+                            self.gid,
+                            parsed_args.securitygroup_id)
         return _make_print_data(
             securitygroup.securitygroup_id,
             securitygroup.name,
@@ -116,11 +118,15 @@ class CreateSecuritygroup(ShowOne):
                             help="Name of the new securitygroup")
         parser.add_argument('--is-default', metavar='<true/false>',
                             default=False,
-                            help="Defaults to the default securitygroup of the group")
+                            help=("Defaults to the default securitygroup "
+                                  "of the group"))
         parser.add_argument('--rule',
-                            metavar=("<protocol=tcp|udp|icmp,port_range_max=integer,"
-                                     "port_range_min=integer,remote_ip_prefix=cidr,"
-                                     "remote_securitygroup_id=securitygroup_uuid>"),
+                            metavar=("<protocol=tcp|udp|icmp,"
+                                     "port_range_max=integer,"
+                                     "port_range_min=integer,"
+                                     "remote_ip_prefix=cidr,"
+                                     "remote_securitygroup_id="
+                                     "securitygroup_uuid>"),
                             action='append',
                             type=utils.keyvalue_to_dict,
                             dest='rules',
@@ -130,16 +136,18 @@ class CreateSecuritygroup(ShowOne):
                                   "port_range_max: Starting port range, "
                                   "port_range_min: Ending port range, "
                                   "remote_ip_prefix: CIDR to match on, "
-                                  "remote_securitygroup_id: Remote securitygroup id "
+                                  "remote_securitygroup_id: "
+                                  "Remote securitygroup id "
                                   "to apply rule. (Can be repeated)"))
 
         return parser
 
     def take_action(self, parsed_args):
-        securitygroup = self.client.securitygroups.create(self.gid,
-                                                          parsed_args.name,
-                                                          parsed_args.is_default,
-                                                          parsed_args.rules)
+        securitygroup = self.client.securitygroups.create(
+            self.gid,
+            parsed_args.name,
+            parsed_args.is_default,
+            parsed_args.rules)
 
         return _make_print_data(
             securitygroup.securitygroup_id,
@@ -173,13 +181,15 @@ class UpdateSecuritygroup(ShowOne):
                             help="Securitygroup ID")
         parser.add_argument('--is-default', metavar='<true/false>',
                             required=True,
-                            help="Defaults to the default securitygroup of the group")
+                            help=("Defaults to the default securitygroup "
+                                  "of the group"))
         return parser
 
     def take_action(self, parsed_args):
-        securitygroup = self.client.securitygroups.update(self.gid,
-                                                          parsed_args.securitygroup_id,
-                                                          parsed_args.is_default)
+        securitygroup = self.client.securitygroups.update(
+                            self.gid,
+                            parsed_args.securitygroup_id,
+                            parsed_args.is_default)
         return _make_print_data(
             securitygroup.securitygroup_id,
             securitygroup.name,
@@ -213,6 +223,6 @@ class DeleteSecuritygroup(Command):
         return parser
 
     def take_action(self, parsed_args):
-        securitygroup = self.client.securitygroups.delete(self.gid,
-                                                          parsed_args.securitygroup_id)
-
+        self.client.securitygroups.delete(
+            self.gid,
+            parsed_args.securitygroup_id)

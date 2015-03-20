@@ -1,3 +1,16 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 from datetime import datetime
 from rackclient.lib import RACK_CTX
 from rackclient import exceptions
@@ -47,8 +60,10 @@ class Pipe:
                 self.name = self.r.get(parent_pipe[0])
             else:
                 self.name = RACK_CTX.pid
-            read_state = self.r.hget(read_state_key(self.name), RACK_CTX.pid) or now
-            write_state = self.r.hget(write_state_key(self.name), RACK_CTX.pid) or now
+            read_state = \
+                self.r.hget(read_state_key(self.name), RACK_CTX.pid) or now
+            write_state = \
+                self.r.hget(write_state_key(self.name), RACK_CTX.pid) or now
         if read is not None:
             if read:
                 read_state = now
@@ -125,7 +140,7 @@ class Pipe:
         self.r.delete(*tuple(keys))
 
     @classmethod
-    def flush_by_pid(self, pid, host=None):
+    def flush_by_pid(cls, pid, host=None):
         if not host:
             host = RACK_CTX.proxy_ip
 

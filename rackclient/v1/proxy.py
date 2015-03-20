@@ -33,10 +33,11 @@ class ProxyManager(base.Manager):
         :param gid: ID of the group.
         :rtype: Process
         """
-        return self._get("/groups/%s/proxy" % (gid), "proxy")
+        return self._get("/groups/%s/proxy" % gid, "proxy")
 
-    def create(self, gid, name=None, nova_flavor_id=None, glance_image_id=None, keypair_id=None,
-               securitygroup_ids=None, userdata=None, args=None):
+    def create(self, gid, name=None, nova_flavor_id=None, glance_image_id=None,
+               keypair_id=None, securitygroup_ids=None, userdata=None,
+               args=None):
         """
         Create a rack-proxy process.
 
@@ -50,7 +51,8 @@ class ProxyManager(base.Manager):
         :param dict args: Dict of key-value pairs to be stored as metadata
         """
 
-        if securitygroup_ids is not None and not isinstance(securitygroup_ids, list):
+        if securitygroup_ids is not None and not isinstance(
+                securitygroup_ids, list):
             raise exceptions.CommandError("securitygroup_ids must be a list")
 
         if userdata:
@@ -74,12 +76,14 @@ class ProxyManager(base.Manager):
         }
         return self._create("/groups/%s/proxy" % gid, body, "proxy")
 
-    def update(self, gid, shm_endpoint=None, ipc_endpoint=None, fs_endpoint=None, app_status=None):
+    def update(self, gid, shm_endpoint=None, ipc_endpoint=None,
+               fs_endpoint=None, app_status=None):
         """
         Update parameters of a rack-proxy process.
 
         :param gid: ID of a group
-        :param shm_endpoint: An endpoint of Shared memory. Arbitrary string value.
+        :param shm_endpoint: An endpoint of Shared memory.
+                             Arbitrary string value.
         :param ipc_endpoint: An endpoint of IPC. Arbitrary string value.
         :param fs_endpoint: An endpoint of File System. Arbitrary string value.
         :param app_status: Application layer status of a rack-proxy process.

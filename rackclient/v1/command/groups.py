@@ -147,7 +147,9 @@ class CreateGroup(ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        group = self.client.groups.create(parsed_args.name, parsed_args.description)
+        group = self.client.groups.create(
+            parsed_args.name,
+            parsed_args.description)
         return _make_print_data(
             group.gid,
             group.name,
@@ -184,8 +186,8 @@ class UpdateGroup(ShowOne):
 
     def take_action(self, parsed_args):
         group = self.client.groups.update(parsed_args.gid,
-                                         parsed_args.name,
-                                         parsed_args.description)
+                                          parsed_args.name,
+                                          parsed_args.description)
         return _make_print_data(
             group.gid,
             group.name,
@@ -217,7 +219,7 @@ class DeleteGroup(Command):
         return parser
 
     def take_action(self, parsed_args):
-        group = self.client.groups.delete(parsed_args.gid)
+        self.client.groups.delete(parsed_args.gid)
 
 
 class InitGroup(ShowOne):
@@ -238,29 +240,24 @@ class InitGroup(ShowOne):
     def get_parser(self, prog_name):
         parser = super(InitGroup, self).get_parser(prog_name)
         parser.add_argument('config', metavar='<config-file>',
-                            help="Configuration file including parameters of the new group")
+                            help=("Configuration file including parameters"
+                                  " of the new group"))
         return parser
 
     def take_action(self, parsed_args):
         config = ConfigParser()
         config.read(parsed_args.config)
 
-        group_name = None
         group_description = None
         keypair_name = None
         keypair_is_default = True
         securitygroup_name = None
         securitygroup_is_default = True
-        securitygroup_rules= []
-        network_cidr = None
         network_name = None
         network_is_admin = True
         network_gateway_ip = None
         network_dns_nameservers = []
-        network_ext_router_id = None
         proxy_name = None
-        proxy_flavor = None
-        proxy_image = None
 
         try:
             group_name = config.get('group', 'name')
@@ -275,7 +272,7 @@ class InitGroup(ShowOne):
         try:
             securitygroup_rules = config.get('securitygroup', 'rules').split()
             securitygroup_rules = \
-                    [utils.keyvalue_to_dict(r) for r in securitygroup_rules]
+                [utils.keyvalue_to_dict(r) for r in securitygroup_rules]
         except argparse.ArgumentTypeError:
             raise exceptions.CommandError((
                 "Could not create a securitygroup: "
@@ -301,11 +298,15 @@ class InitGroup(ShowOne):
             keypair_name = config.get('keypair', 'name')
             keypair_is_default = config.get('keypair', 'is_default')
             securitygroup_name = config.get('securitygroup', 'name')
-            securitygroup_is_default = config.get('securitygroup', 'is_default')
+            securitygroup_is_default = config.get(
+                'securitygroup',
+                'is_default')
             network_name = config.get('network', 'name')
             network_is_admin = config.get('network', 'is_admin')
             network_gateway_ip = config.get('network', 'gateway_ip')
-            network_dns_nameservers = config.get('network', 'dns_nameservers').split()
+            network_dns_nameservers = config.get(
+                'network',
+                'dns_nameservers').split()
         except NoOptionError:
             pass
 
@@ -313,21 +314,21 @@ class InitGroup(ShowOne):
         keypair = self.client.keypairs.create(group.gid, keypair_name,
                                               keypair_is_default)
         securitygroup = self.client.securitygroups.create(
-                                        group.gid,
-                                        securitygroup_name,
-                                        securitygroup_is_default,
-                                        securitygroup_rules)
+            group.gid,
+            securitygroup_name,
+            securitygroup_is_default,
+            securitygroup_rules)
         network = self.client.networks.create(
-                                        group.gid, network_cidr, network_name,
-                                        network_is_admin, network_gateway_ip,
-                                        network_dns_nameservers,
-                                        network_ext_router_id)
+            group.gid, network_cidr, network_name,
+            network_is_admin, network_gateway_ip,
+            network_dns_nameservers,
+            network_ext_router_id)
         proxy = self.client.proxy.create(
-                            group.gid, name=proxy_name,
-                            nova_flavor_id=proxy_flavor,
-                            glance_image_id=proxy_image,
-                            keypair_id=keypair.keypair_id,
-                            securitygroup_ids=[securitygroup.securitygroup_id])
+            group.gid, name=proxy_name,
+            nova_flavor_id=proxy_flavor,
+            glance_image_id=proxy_image,
+            keypair_id=keypair.keypair_id,
+            securitygroup_ids=[securitygroup.securitygroup_id])
 
         columns = ['gid', 'keypair_id', 'securitygroup_id', 'network_id',
                    'proxy_pid', 'proxy_name']
@@ -335,4 +336,3 @@ class InitGroup(ShowOne):
                 network.network_id, proxy.pid, proxy.name]
 
         return columns, data
-

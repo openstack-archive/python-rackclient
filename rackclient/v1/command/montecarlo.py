@@ -97,4 +97,3 @@ class Montecarlo(ShowOne):
         data = [process.pid, process.ppid, cmd]
 
         return columns, data
-

@@ -18,67 +18,37 @@ from rackclient import client
 from mock import *
 
 
-# class PContextFixture(fixture.Fixture):
-#
-#     def setUp(self):
-#         super(PContextFixture, self).setUp()
-#         self.attrs = dir(PCTXT)
-#         self.addCleanup(self.cleanup_pctxt)
-#
-#         PCTXT.gid = 'gid'
-#         PCTXT.pid = 'pid'
-#         PCTXT.ppid = None
-#         PCTXT.proxy_ip = '10.0.0.2'
-#         PCTXT.proxy_url = 'http://10.0.0.2:8088/v1'
-#         PCTXT.fs_endpoint = None
-#         PCTXT.shm_endpoint = None
-#         PCTXT.ipc_endpoint = None
-#         PCTXT.client = client.Client('1', rack_url=PCTXT.proxy_url)
-#
-#     def cleanup_pctxt(self):
-#         attrs = dir(PCTXT)
-#         for attr in attrs:
-#             if attr not in self.attrs: delattr(PCTXT, attr)
-
-
 class TestCase(testtools.TestCase):
 
     def setUp(self):
         super(TestCase, self).setUp()
-        # if (os.environ.get('OS_STDOUT_CAPTURE') == 'True' or
-        #         os.environ.get('OS_STDOUT_CAPTURE') == '1'):
-        #     stdout = self.useFixture(fixtures.StringStream('stdout')).stream
-        #     self.useFixture(fixtures.MonkeyPatch('sys.stdout', stdout))
-        # if (os.environ.get('OS_STDERR_CAPTURE') == 'True' or
-        #         os.environ.get('OS_STDERR_CAPTURE') == '1'):
-        #     stderr = self.useFixture(fixtures.StringStream('stderr')).stream
-        #     self.useFixture(fixtures.MonkeyPatch('sys.stderr', stderr))
-
-#        self.useFixture(PContextFixture())
 
 
 class LibTestCase(testtools.TestCase):
 
     def setUp(self):
         super(LibTestCase, self).setUp()
-        patcher = patch("rackclient.lib." + self.target_context() + ".RACK_CTX")
+        patcher = patch(
+            "rackclient.lib." + self.target_context() + ".RACK_CTX")
         self.addCleanup(patcher.stop)
         self.mock_RACK_CTX = patcher.start()
         self._init_context()
 
     def _init_context(self):
-        self.mock_RACK_CTX.gid="gid"
-        self.mock_RACK_CTX.pid="pid"
-        self.mock_RACK_CTX.ppid=None
-        self.mock_RACK_CTX.proxy_ip="10.0.0.2"
+        self.mock_RACK_CTX.gid = "gid"
+        self.mock_RACK_CTX.pid = "pid"
+        self.mock_RACK_CTX.ppid = None
+        self.mock_RACK_CTX.proxy_ip = "10.0.0.2"
         self.mock_RACK_CTX.proxy_url = 'http://10.0.0.2:8088/v1'
-        self.mock_RACK_CTX.client = client.Client('1', rack_url=self.mock_RACK_CTX.proxy_url)
+        self.mock_RACK_CTX.client = \
+            client.Client('1', rack_url=self.mock_RACK_CTX.proxy_url)
         self.mock_RACK_CTX.fs_endpoint = None
         self.mock_RACK_CTX.ipc_endpoint = None
         self.mock_RACK_CTX.shm_endpoint = None
 
     def target_context(self):
         pass
+
 
 class TestResponse(requests.Response):
     """

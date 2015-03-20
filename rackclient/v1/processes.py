@@ -46,7 +46,7 @@ class ProcessManager(base.Manager):
         return self._get("/groups/%s/processes/%s" % (gid, pid), "process")
 
     def create(self, gid, ppid=None, **kwargs):
-        '''
+        """
         Create a process.
 
         If you give a ppid(Parent process ID),
@@ -62,10 +62,11 @@ class ProcessManager(base.Manager):
         :param list securitygroup_ids: List of IDs of securitygroups
         :param userdata: file type object or string of script
         :param dict args: Dict of key-value pairs to be stored as metadata
-        '''
+        """
 
         securitygroup_ids = kwargs.get('securitygroup_ids')
-        if securitygroup_ids is not None and not isinstance(securitygroup_ids, list):
+        if securitygroup_ids is not None and not isinstance(
+                securitygroup_ids, list):
             raise exceptions.CommandError("securitygroup_ids must be a list")
 
         userdata = kwargs.get('userdata')
@@ -105,12 +106,13 @@ class ProcessManager(base.Manager):
                 "app_status": app_status
             }
         }
-        return self._update("/groups/%s/processes/%s" % (gid, pid), body, "process")
+        return self._update("/groups/%s/processes/%s" %
+                            (gid, pid), body, "process")
 
     def delete(self, gid, pid):
         """
         Delete a process.
-        
+
         :param gid: ID of the group.
         :param pid: ID of the process to delete.
         """

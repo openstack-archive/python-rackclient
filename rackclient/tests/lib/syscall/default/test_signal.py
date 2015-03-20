@@ -12,6 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 import copy
+import logging
 
 from mock import patch, Mock
 from rackclient.tests import utils
@@ -25,6 +26,7 @@ class SignalTest(utils.LibTestCase):
 
     def setUp(self):
         super(SignalTest, self).setUp()
+        logging.basicConfig(level=logging.ERROR)
 
     @patch('websocket.WebSocketApp')
     def test_receive(self, mock_websocket_websocketapp):

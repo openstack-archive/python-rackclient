@@ -1,3 +1,16 @@
+# Copyright (c) 2014 ITOCHU Techno-Solutions Corporation.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 from rackclient.lib import RACK_CTX
 from rackclient import exceptions
 from swiftclient import client as swift_client
@@ -14,7 +27,6 @@ SWIFT_PORT = 8080
 
 
 def _get_swift_client():
-
     if RACK_CTX.fs_endpoint:
         try:
             d = json.loads(RACK_CTX.fs_endpoint)
@@ -90,7 +102,7 @@ class File(object):
 
             try:
                 _, contents = swift.get_object(self.get_directory(),
-                                            self.get_name(), chunk_size)
+                                               self.get_name(), chunk_size)
                 if chunk_size:
                     for c in contents:
                         self.file.write(c)

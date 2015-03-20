@@ -115,7 +115,8 @@ class CreateKeypair(ShowOne):
                             help="Name of the new keypair")
         parser.add_argument('--is-default', metavar='<true/false>',
                             default=False,
-                            help="Defaults to the default keypair of the group")
+                            help=("Defaults to the default keypair of"
+                                  " the group"))
         return parser
 
     def take_action(self, parsed_args):
@@ -195,5 +196,4 @@ class DeleteKeypair(Command):
         return parser
 
     def take_action(self, parsed_args):
-        keypair = self.client.keypairs.delete(self.gid, parsed_args.keypair_id)
-
+        self.client.keypairs.delete(self.gid, parsed_args.keypair_id)

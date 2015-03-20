@@ -11,6 +11,8 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+
+
 class UnsupportedVersion(Exception):
     """Indicates that the user is trying to use an unsupported
     version of the API.
@@ -107,7 +109,8 @@ def from_response(response, body, url, method=None):
 
 class BaseError(Exception):
     """
-    The base exception class for all exceptions except for HTTPException based classes.
+    The base exception class for all exceptions except for HTTPException
+    based classes.
     """
     pass
 

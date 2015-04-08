@@ -45,11 +45,11 @@ def _make_print_data(gid, name, description, user_id, project_id,
         data.append(networks)
 
     if proxy is not None:
-        columns.append('proxy (pid)')
+        columns.append('proxy')
         data.append(proxy)
 
     if processes is not None:
-        columns.append('processes (pid)')
+        columns.append('processes')
         data.append(processes)
 
     return columns, data

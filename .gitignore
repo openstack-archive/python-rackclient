@@ -9,4 +9,4 @@ build/
 .tox/
 cover/
 htmlcov/
-
+.eggs/

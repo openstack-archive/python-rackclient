@@ -119,7 +119,6 @@ class ShowGroup(ShowOne):
             ','.join([k.keypair_id for k in keypairs]),
             ','.join([s.securitygroup_id for s in securitygroups]),
             ','.join([n.network_id for n in networks]),
-            ','.join([p.pid for p in processes]),
             proxy.pid if proxy else ''
         )
 

@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: takehirokaneko <takehiro.kaneko@ctc-g.co.jp>
+Workflow+1: takehirokaneko <takehiro.kaneko@ctc-g.co.jp>
+Submitted-by: Jenkins
+Submitted-at: Wed, 08 Apr 2015 05:50:57 +0000
+Reviewed-on: https://review.openstack.org/171466
+Project: stackforge/python-rackclient
+Branch: refs/heads/master

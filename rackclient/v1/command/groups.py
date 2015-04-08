@@ -253,60 +253,84 @@ class InitGroup(ShowOne):
         keypair_is_default = True
         securitygroup_name = None
         securitygroup_is_default = True
+        securitygroup_rules = None
         network_name = None
         network_is_admin = True
         network_gateway_ip = None
         network_dns_nameservers = []
         proxy_name = None
 
+        # Required options
         try:
             group_name = config.get('group', 'name')
-        except NoOptionError:
-            raise exceptions.CommandError("Group name is required.")
-
-        try:
             network_cidr = config.get('network', 'cidr')
-        except NoOptionError:
-            raise exceptions.CommandError("Network cidr is required.")
+            network_ext_router_id = config.get('network', 'ext_router_id')
+            proxy_flavor = config.get('proxy', 'nova_flavor_id')
+            proxy_image = config.get('proxy', 'glance_image_id')
+        except NoOptionError as e:
+            msg = "%s in %s section is required." % (e.option, e.section)
+            raise exceptions.CommandError(msg)
 
         try:
             securitygroup_rules = config.get('securitygroup', 'rules').split()
             securitygroup_rules = \
                 [utils.keyvalue_to_dict(r) for r in securitygroup_rules]
         except argparse.ArgumentTypeError:
-            raise exceptions.CommandError((
-                "Could not create a securitygroup: "
-                "securitygroup rules are not valid formart"))
-
-        try:
-            network_ext_router_id = config.get('network', 'ext_router_id')
+            raise exceptions.CommandError(
+                "securitygroup rules are not valid formart")
         except NoOptionError:
-            raise exceptions.CommandError("Router ID is required.")
-
-        try:
-            proxy_flavor = config.get('proxy', 'nova_flavor_id')
-        except NoOptionError:
-            raise exceptions.CommandError("Flavor ID is required.")
-
-        try:
-            proxy_image = config.get('proxy', 'glance_image_id')
-        except NoOptionError:
-            raise exceptions.CommandError("Image ID is required.")
+            pass
 
         try:
             group_description = config.get('group', 'description')
+        except NoOptionError:
+            pass
+
+        try:
             keypair_name = config.get('keypair', 'name')
+        except NoOptionError:
+            pass
+
+        try:
             keypair_is_default = config.get('keypair', 'is_default')
+        except NoOptionError:
+            pass
+
+        try:
             securitygroup_name = config.get('securitygroup', 'name')
-            securitygroup_is_default = config.get(
-                'securitygroup',
-                'is_default')
+        except NoOptionError:
+            pass
+
+        try:
+            securitygroup_is_default = config.get('securitygroup',
+                                                  'is_default')
+        except NoOptionError:
+            pass
+
+        try:
             network_name = config.get('network', 'name')
+        except NoOptionError:
+            pass
+
+        try:
             network_is_admin = config.get('network', 'is_admin')
+        except NoOptionError:
+            pass
+
+        try:
             network_gateway_ip = config.get('network', 'gateway_ip')
+        except NoOptionError:
+            pass
+
+        try:
             network_dns_nameservers = config.get(
                 'network',
                 'dns_nameservers').split()
+        except NoOptionError:
+            pass
+
+        try:
+            proxy_name = config.get('proxy', 'name')
         except NoOptionError:
             pass
 

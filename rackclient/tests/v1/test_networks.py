@@ -36,7 +36,8 @@ class NetworksTest(utils.TestCase):
     def test_get(self):
         network_id = 'aaaaaaaa'
         network = self.cs.networks.get(self.gid, network_id)
-        self.cs.assert_called('GET', '/groups/%s/networks/%s' % (self.gid, network_id))
+        self.cs.assert_called('GET', '/groups/%s/networks/%s'
+                                     % (self.gid, network_id))
         self.assertEqual(self.gid, network.gid)
         self.assertEqual(self.user_id, network.user_id)
         self.assertEqual(self.project_id, network.project_id)
@@ -47,7 +48,8 @@ class NetworksTest(utils.TestCase):
         self.assertEqual('rrrrrrrr', network.ext_router_id)
         self.assertEqual('Exist', network.status)
 
-    def _create_body(self, cidr, name=None, is_admin=False, gateway=None, dns_nameservers=None, ext_router_id=None):
+    def _create_body(self, cidr, name=None, is_admin=False, gateway=None,
+                     dns_nameservers=None, ext_router_id=None):
         return {
             'network': {
                 'cidr': cidr,
@@ -86,8 +88,8 @@ class NetworksTest(utils.TestCase):
                           self.gid, '10.0.0.0', name, True, '10.0.0.254',
                           ['8.8.8.8', '8.8.4.4'], ext_router_id)
         self.assertRaises(exc.CommandError, self.cs.networks.create,
-                          self.gid, '10.0.0.0/24', name, 'invalid', '10.0.0.254',
-                          ['8.8.8.8', '8.8.4.4'], ext_router_id)
+                          self.gid, '10.0.0.0/24', name, 'invalid',
+                          '10.0.0.254', ['8.8.8.8', '8.8.4.4'], ext_router_id)
         self.assertRaises(exc.CommandError, self.cs.networks.create,
                           self.gid, '10.0.0.0/24', name, True, 'invalid',
                           ['8.8.8.8', '8.8.4.4'], ext_router_id)
@@ -98,4 +100,5 @@ class NetworksTest(utils.TestCase):
     def test_delete(self):
         network_id = 'aaaaaaaa'
         self.cs.networks.delete(self.gid, network_id)
-        self.cs.assert_called('DELETE', '/groups/%s/networks/%s' % (self.gid, network_id))
+        self.cs.assert_called('DELETE', '/groups/%s/networks/%s'
+                                        % (self.gid, network_id))

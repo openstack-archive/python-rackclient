@@ -11,11 +11,10 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-from fixtures import fixture
 import requests
 import testtools
 from rackclient import client
-from mock import *
+from mock import patch
 
 
 class TestCase(testtools.TestCase):

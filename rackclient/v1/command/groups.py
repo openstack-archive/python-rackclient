@@ -103,7 +103,6 @@ class ShowGroup(ShowOne):
         keypairs = self.client.keypairs.list(parsed_args.gid)
         securitygroups = self.client.securitygroups.list(parsed_args.gid)
         networks = self.client.networks.list(parsed_args.gid)
-        processes = self.client.processes.list(parsed_args.gid)
         try:
             proxy = self.client.proxy.get(parsed_args.gid)
         except Exception:

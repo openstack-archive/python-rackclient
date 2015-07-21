@@ -47,9 +47,9 @@ class FileTest(utils.LibTestCase):
 
     def test_get_swift_client_fs_endpoint(self):
         endpoint = ('{"os_username": "user", '
-                   '"os_password": "password", '
-                   '"os_tenant_name": "tenant", '
-                   '"os_auth_url": "http://www.example.com:5000/v2.0"}')
+                    '"os_password": "password", '
+                    '"os_tenant_name": "tenant", '
+                    '"os_auth_url": "http://www.example.com:5000/v2.0"}')
         self.mock_RACK_CTX.fs_endpoint = endpoint
         rackfile._get_swift_client()
         expected = {
@@ -90,7 +90,8 @@ class FileTest(utils.LibTestCase):
         f = rackfile.File('/dir1/dir2/file.txt')
         f.load()
 
-        self.mock_conn.return_value.get_object.assert_called_with('dir1',
+        self.mock_conn.return_value.get_object.assert_called_with(
+                                                        'dir1',
                                                         'dir2/file.txt', None)
         self.assertEqual('example text', f.read())
 
@@ -102,7 +103,7 @@ class FileTest(utils.LibTestCase):
 
     def test_file_read_mode_with_chunk_size(self):
         def _content():
-            for i in ['11111111',  '22222222']:
+            for i in ['11111111', '22222222']:
                 yield i
 
         self.mock_conn.return_value.get_object.return_value = \
@@ -110,7 +111,8 @@ class FileTest(utils.LibTestCase):
         f = rackfile.File('/dir1/dir2/file.txt')
         f.load(8)
 
-        self.mock_conn.return_value.get_object.assert_called_with('dir1',
+        self.mock_conn.return_value.get_object.assert_called_with(
+                                                        'dir1',
                                                         'dir2/file.txt', 8)
         self.assertEqual('1111111122222222', f.read())
         f.close()

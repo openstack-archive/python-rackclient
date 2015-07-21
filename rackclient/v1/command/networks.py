@@ -18,7 +18,6 @@ from cliff.lister import Lister
 from cliff.show import ShowOne
 
 from rackclient import client
-from rackclient import exceptions
 
 
 def _make_print_data(network_id, name, neutron_network_id, is_admin,
@@ -126,7 +125,7 @@ class CreateNetwork(ShowOne):
         parser.add_argument('--dns-nameserver', metavar='<x.x.x.x>',
                             dest='dns_nameservers', action='append',
                             help=("DNS server for the new network "
-                                 "(Can be repeated)"))
+                                  "(Can be repeated)"))
         parser.add_argument('--ext-router-id', metavar='<router-id>',
                             help="Router id the new network connects to")
 

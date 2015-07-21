@@ -36,7 +36,8 @@ class KeypairsTest(utils.TestCase):
     def test_get(self):
         keypair_id = 'aaaaaaaa'
         keypair = self.cs.keypairs.get(self.gid, keypair_id)
-        self.cs.assert_called('GET', '/groups/%s/keypairs/%s' % (self.gid, keypair_id))
+        self.cs.assert_called('GET', '/groups/%s/keypairs/%s'
+                              % (self.gid, keypair_id))
         self.assertEqual(self.gid, keypair.gid)
         self.assertEqual(self.user_id, keypair.user_id)
         self.assertEqual(self.project_id, keypair.project_id)
@@ -82,7 +83,8 @@ class KeypairsTest(utils.TestCase):
         keypair = self.cs.keypairs.update(self.gid,
                                           keypair_id, is_default)
         body = self._update_body(is_default)
-        self.cs.assert_called('PUT', '/groups/%s/keypairs/%s' % (self.gid, keypair_id), body)
+        self.cs.assert_called('PUT', '/groups/%s/keypairs/%s'
+                              % (self.gid, keypair_id), body)
         self.assertIsInstance(keypair, self.keypair_type)
 
     def test_update_invalid_parameters(self):
@@ -94,4 +96,5 @@ class KeypairsTest(utils.TestCase):
     def test_delete(self):
         keypair_id = 'aaaaaaaa'
         self.cs.keypairs.delete(self.gid, keypair_id)
-        self.cs.assert_called('DELETE', '/groups/%s/keypairs/%s' % (self.gid, keypair_id))
+        self.cs.assert_called('DELETE', '/groups/%s/keypairs/%s'
+                              % (self.gid, keypair_id))

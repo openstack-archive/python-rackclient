@@ -60,7 +60,6 @@ class ProxyTest(utils.TestCase):
         self.assertEqual('shm_endpoint', proxy.shm_endpoint)
         self.assertEqual('fs_endpoint', proxy.fs_endpoint)
 
-
     def _create_body(self, name=None, nova_flavor_id=None,
                      glance_image_id=None, keypair_id=None,
                      securitygroup_ids=None, userdata=None, args=None):
@@ -82,7 +81,7 @@ class ProxyTest(utils.TestCase):
         f.write(userdata)
         f.seek(0)
         params = {
-            'name':'proxy',
+            'name': 'proxy',
             'nova_flavor_id': 1,
             'glance_image_id': '22222222',
             'keypair_id': '33333333',

@@ -13,8 +13,6 @@
 #    limitations under the License.
 import argparse
 
-from cliff.command import Command
-from cliff.lister import Lister
 from cliff.show import ShowOne
 
 from rackclient import client

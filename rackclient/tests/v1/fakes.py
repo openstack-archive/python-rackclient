@@ -134,15 +134,21 @@ class FakeHTTPClient(base_client.HTTPClient):
         return (200, {}, keypairs)
 
     def get_groups_11111111_keypairs_aaaaaaaa(self, **kw):
-        keypair = {'keypair': self.get_groups_11111111_keypairs()[2]['keypairs'][0]}
+        keypair = {
+            'keypair': self.get_groups_11111111_keypairs()[2]['keypairs'][0]
+        }
         return (200, {}, keypair)
 
     def post_groups_11111111_keypairs(self, body, **kw):
-        keypair = {'keypair': self.get_groups_11111111_keypairs()[2]['keypairs'][0]}
+        keypair = {
+            'keypair': self.get_groups_11111111_keypairs()[2]['keypairs'][0]
+        }
         return (201, {}, keypair)
 
     def put_groups_11111111_keypairs_aaaaaaaa(self, body, **kw):
-        keypair = {'keypair': self.get_groups_11111111_keypairs()[2]['keypairs'][0]}
+        keypair = {
+            'keypair': self.get_groups_11111111_keypairs()[2]['keypairs'][0]
+        }
         return (200, {}, keypair)
 
     def delete_groups_11111111_keypairs_aaaaaaaa(self, **kw):
@@ -178,15 +184,21 @@ class FakeHTTPClient(base_client.HTTPClient):
         return (200, {}, securitygroups)
 
     def get_groups_11111111_securitygroups_aaaaaaaa(self, **kw):
-        securitygroup = {'securitygroup': self.get_groups_11111111_securitygroups()[2]['securitygroups'][0]}
+        secgroup_aaaaaaaa =\
+            self.get_groups_11111111_securitygroups()[2]['securitygroups'][0]
+        securitygroup = {'securitygroup': secgroup_aaaaaaaa}
         return (200, {}, securitygroup)
 
     def post_groups_11111111_securitygroups(self, body, **kw):
-        securitygroup = {'securitygroup': self.get_groups_11111111_securitygroups()[2]['securitygroups'][0]}
+        secgroup_aaaaaaaa =\
+            self.get_groups_11111111_securitygroups()[2]['securitygroups'][0]
+        securitygroup = {'securitygroup': secgroup_aaaaaaaa}
         return (201, {}, securitygroup)
 
     def put_groups_11111111_securitygroups_aaaaaaaa(self, body, **kw):
-        securitygroup = {'securitygroup': self.get_groups_11111111_securitygroups()[2]['securitygroups'][0]}
+        secgroup_aaaaaaaa =\
+            self.get_groups_11111111_securitygroups()[2]['securitygroups'][0]
+        securitygroup = {'securitygroup': secgroup_aaaaaaaa}
         return (200, {}, securitygroup)
 
     def delete_groups_11111111_securitygroups_aaaaaaaa(self, **kw):
@@ -224,16 +236,20 @@ class FakeHTTPClient(base_client.HTTPClient):
         return (200, {}, networks)
 
     def get_groups_11111111_networks_aaaaaaaa(self, **kw):
-        network = {'network': self.get_groups_11111111_networks()[2]['networks'][0]}
+        network_aaaaaaaa =\
+            self.get_groups_11111111_networks()[2]['networks'][0]
+        network = {'network': network_aaaaaaaa}
         return (200, {}, network)
 
     def post_groups_11111111_networks(self, body, **kw):
-        network = {'network': self.get_groups_11111111_networks()[2]['networks'][0]}
+        network_aaaaaaaa =\
+            self.get_groups_11111111_networks()[2]['networks'][0]
+        network = {'network': network_aaaaaaaa}
         return (201, {}, network)
 
     def delete_groups_11111111_networks_aaaaaaaa(self, **kw):
         return (204, {}, None)
-    
+
     #
     # processes
     #
@@ -299,15 +315,21 @@ class FakeHTTPClient(base_client.HTTPClient):
         return (200, {}, processes)
 
     def get_groups_11111111_processes_aaaaaaaa(self, **kw):
-        process = {'process': self.get_groups_11111111_processes()[2]['processes'][0]}
+        process_aaaaaaaa =\
+            self.get_groups_11111111_processes()[2]['processes'][0]
+        process = {'process': process_aaaaaaaa}
         return (200, {}, process)
 
     def post_groups_11111111_processes(self, body, **kw):
-        process = {'process': self.get_groups_11111111_processes()[2]['processes'][0]}
+        process_aaaaaaaa =\
+            self.get_groups_11111111_processes()[2]['processes'][0]
+        process = {'process': process_aaaaaaaa}
         return (202, {}, process)
 
     def put_groups_11111111_processes_aaaaaaaa(self, body, **kw):
-        process = {'process': self.get_groups_11111111_processes()[2]['processes'][0]}
+        process_aaaaaaaa =\
+            self.get_groups_11111111_processes()[2]['processes'][0]
+        process = {'process': process_aaaaaaaa}
         return (200, {}, process)
 
     def delete_groups_11111111_processes_aaaaaaaa(self, **kw):

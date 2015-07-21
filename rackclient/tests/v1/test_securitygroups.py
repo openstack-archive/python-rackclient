@@ -36,7 +36,8 @@ class SecuritygroupsTest(utils.TestCase):
     def test_get(self):
         securitygroup_id = 'aaaaaaaa'
         securitygroup = self.cs.securitygroups.get(self.gid, securitygroup_id)
-        self.cs.assert_called('GET', '/groups/%s/securitygroups/%s' % (self.gid, securitygroup_id))
+        self.cs.assert_called('GET', '/groups/%s/securitygroups/%s'
+                                     % (self.gid, securitygroup_id))
         self.assertEqual(self.gid, securitygroup.gid)
         self.assertEqual(self.user_id, securitygroup.user_id)
         self.assertEqual(self.project_id, securitygroup.project_id)
@@ -64,9 +65,11 @@ class SecuritygroupsTest(utils.TestCase):
             'port_range_min': '80',
             'remote_ip_prefix': '0.0.0.0/0'
         }]
-        securitygroup = self.cs.securitygroups.create(self.gid, name, is_default, rules)
+        securitygroup = self.cs.securitygroups.create(self.gid, name,
+                                                      is_default, rules)
         body = self._create_body(name, is_default, rules)
-        self.cs.assert_called('POST', '/groups/%s/securitygroups' % self.gid, body)
+        self.cs.assert_called('POST', '/groups/%s/securitygroups'
+                                      % self.gid, body)
         self.assertIsInstance(securitygroup, self.securitygroup_type)
 
     def test_create_invalid_parameters(self):
@@ -94,9 +97,12 @@ class SecuritygroupsTest(utils.TestCase):
     def test_update(self):
         is_default = True
         securitygroup_id = 'aaaaaaaa'
-        securitygroup = self.cs.securitygroups.update(self.gid, securitygroup_id, is_default)
+        securitygroup = self.cs.securitygroups.update(self.gid,
+                                                      securitygroup_id,
+                                                      is_default)
         body = self._update_body(is_default)
-        self.cs.assert_called('PUT', '/groups/%s/securitygroups/%s' % (self.gid, securitygroup_id), body)
+        self.cs.assert_called('PUT', '/groups/%s/securitygroups/%s'
+                                     % (self.gid, securitygroup_id), body)
         self.assertIsInstance(securitygroup, self.securitygroup_type)
 
     def test_update_invalid_parameters(self):
@@ -108,4 +114,5 @@ class SecuritygroupsTest(utils.TestCase):
     def test_delete(self):
         securitygroup_id = 'aaaaaaaa'
         self.cs.securitygroups.delete(self.gid, securitygroup_id)
-        self.cs.assert_called('DELETE', '/groups/%s/securitygroups/%s' % (self.gid, securitygroup_id))
+        self.cs.assert_called('DELETE', '/groups/%s/securitygroups/%s'
+                                        % (self.gid, securitygroup_id))

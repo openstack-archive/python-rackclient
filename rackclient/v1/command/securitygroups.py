@@ -18,7 +18,6 @@ from cliff.lister import Lister
 from cliff.show import ShowOne
 
 from rackclient import client
-from rackclient import exceptions
 from rackclient import utils
 
 

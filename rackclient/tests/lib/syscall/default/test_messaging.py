@@ -32,7 +32,8 @@ class MessagingTest(utils.LibTestCase):
         self.mock_connection = Mock()
         self.mock_channel = Mock()
         self.mock_receive = Mock(spec=rack_ipc.Messaging.Receive)
-        self.patch_pika_blocking = patch('pika.BlockingConnection', autospec=True)
+        self.patch_pika_blocking = patch('pika.BlockingConnection',
+                                         autospec=True)
         # self.addCleanup(self.patch_pika_blocking.stop)
         self.mock_pika_blocking = self.patch_pika_blocking.start()
         self.mock_pika_blocking.return_value = self.mock_connection
@@ -48,13 +49,15 @@ class MessagingTest(utils.LibTestCase):
         msg.declare_queue(queue_name)
 
         self.mock_channel.\
-            exchange_declare.assert_called_with(exchange=self.mock_RACK_CTX.gid,
-                                                type='topic')
+            exchange_declare.assert_called_with(
+                                        exchange=self.mock_RACK_CTX.gid,
+                                        type='topic')
         self.mock_channel.queue_declare.assert_called_with(queue=queue_name)
         r_key = self.mock_RACK_CTX.gid + '.' + queue_name
-        self.mock_channel.queue_bind.assert_called_with(exchange=self.mock_RACK_CTX.gid,
-                                                        queue=queue_name,
-                                                        routing_key=r_key)
+        self.mock_channel.queue_bind.assert_called_with(
+                                        exchange=self.mock_RACK_CTX.gid,
+                                        queue=queue_name,
+                                        routing_key=r_key)
 
     @patch('rackclient.lib.syscall.default.messaging.Messaging.Receive')
     def test_receive_all_msg(self, mock_receive):
@@ -169,7 +172,7 @@ class MessagingTest(utils.LibTestCase):
         receive.get_msg(ch, method, properties, body)
 
         ch.basic_ack.assert_called_with(delivery_tag=ch_object['delivery_tag'])
-        ch.stop_consuming.assert_call_with()
+        ch.stop_consuming.assert_called_with()
         self.assertEqual(receive.message, receive_msg)
 
     def test_receive_timeout(self):
@@ -184,7 +187,8 @@ class MessagingTest(utils.LibTestCase):
         self.addCleanup(p.stop)
         mock_pika_connection_param = p.start()
         rack_ipc.Messaging()
-        mock_pika_connection_param.assert_called_with(self.mock_RACK_CTX.proxy_ip)
+        mock_pika_connection_param.assert_called_with(
+                                                self.mock_RACK_CTX.proxy_ip)
 
     @patch('pika.ConnectionParameters', autospec=True)
     def test_create_connection_ipc_endpoint(self, mock_pika_connection_param):

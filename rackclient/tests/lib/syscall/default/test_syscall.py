@@ -36,10 +36,12 @@ class SyscallTest(utils.LibTestCase):
             args = kwargs['args']
             args.update(d)
             kwargs.update(d)
-            return_process = processes.Process(self.mock_RACK_CTX.client, kwargs)
+            return_process = processes.Process(self.mock_RACK_CTX.client,
+                                               kwargs)
             return return_process
 
-        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=create_process)
+        self.mock_RACK_CTX.client.processes.create =\
+                                               Mock(side_effect=create_process)
         # messaging mock
         mock_messaging = Mock()
         messaging.Messaging = Mock(return_value=mock_messaging)
@@ -87,10 +89,12 @@ class SyscallTest(utils.LibTestCase):
             args = kwargs['args']
             args.update(d)
             kwargs.update(d)
-            return_process = processes.Process(self.mock_RACK_CTX.client, kwargs)
+            return_process = processes.Process(self.mock_RACK_CTX.client,
+                                               kwargs)
             return return_process
 
-        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=create_process)
+        self.mock_RACK_CTX.client.processes.create =\
+                                            Mock(side_effect=create_process)
         self.mock_RACK_CTX.client.processes.delete = Mock()
 
         # messaging mock
@@ -112,7 +116,8 @@ class SyscallTest(utils.LibTestCase):
         process_list = syscall.fork(arg_list)
 
         # check
-        self.mock_RACK_CTX.client.processes.delete.assert_called_with(self.mock_RACK_CTX.gid, 'pid1')
+        self.mock_RACK_CTX.client.processes.delete.assert_called_with(
+                                                self.mock_RACK_CTX.gid, 'pid1')
         expected_pipe_share = [call('pid', 'pid3'),
                                call('pid', 'pid4'),
                                call('pid', 'pid5')]
@@ -130,7 +135,8 @@ class SyscallTest(utils.LibTestCase):
             expected_arg_list.remove(process.args)
 
     def test_bulk_fork_error_no_child_process_is_created(self):
-        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=Exception)
+        self.mock_RACK_CTX.client.processes.create =\
+                                                Mock(side_effect=Exception)
         # call fork
         arg1 = {'test': 'test1'}
         arg2 = {'test': 'test2'}
@@ -151,10 +157,12 @@ class SyscallTest(utils.LibTestCase):
             args = kwargs['args']
             args.update(d)
             kwargs.update(d)
-            return_process = processes.Process(self.mock_RACK_CTX.client, kwargs)
+            return_process = processes.Process(self.mock_RACK_CTX.client,
+                                               kwargs)
             return return_process
 
-        self.mock_RACK_CTX.client.processes.create = Mock(side_effect=create_process)
+        self.mock_RACK_CTX.client.processes.create =\
+                                            Mock(side_effect=create_process)
         self.mock_RACK_CTX.client.processes.delete = Mock()
         # messaging mock
         mock_messaging = Mock()
@@ -170,8 +178,9 @@ class SyscallTest(utils.LibTestCase):
         expected_processes_delete = [call(self.mock_RACK_CTX.gid, 'pid1'),
                                      call(self.mock_RACK_CTX.gid, 'pid2'),
                                      call(self.mock_RACK_CTX.gid, 'pid3')]
-        self.assertEqual(expected_processes_delete,
-                         self.mock_RACK_CTX.client.processes.delete.call_args_list)
+        self.assertEqual(
+                expected_processes_delete,
+                self.mock_RACK_CTX.client.processes.delete.call_args_list)
 
     def test_pipe_no_arg(self):
         pipe.Pipe = Mock()

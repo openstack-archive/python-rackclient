@@ -54,7 +54,7 @@ class SignalManager(object):
         LOG.error(error)
         ws.close()
         raise Exception("Error ocurred while waiting for messages.")
-    
+
     def on_close(self, ws):
         LOG.debug("Websocket connection %s closed" % ws.header[0])
 

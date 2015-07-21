@@ -70,7 +70,8 @@ class SignalTest(utils.LibTestCase):
         self.assertEqual(s.on_msg_func, excepted_on_msg_func)
 
     @patch('websocket.WebSocketApp')
-    def teston_msg_func_receive_pid_specified(self, mock_websocket_websocketapp):
+    def teston_msg_func_receive_pid_specified(self,
+                                              mock_websocket_websocketapp):
         mock_app = Mock()
         mock_websocket_websocketapp.return_value = mock_app
 

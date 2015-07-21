@@ -38,7 +38,8 @@ class ProcesssTest(utils.TestCase):
     def test_get(self):
         pid = 'aaaaaaaa'
         process = self.cs.processes.get(self.gid, pid)
-        self.cs.assert_called('GET', '/groups/%s/processes/%s' % (self.gid, pid))
+        self.cs.assert_called('GET', '/groups/%s/processes/%s'
+                                     % (self.gid, pid))
         self.assertEqual(self.gid, process.gid)
         self.assertEqual(self.user_id, process.user_id)
         self.assertEqual(self.project_id, process.project_id)
@@ -65,7 +66,6 @@ class ProcesssTest(utils.TestCase):
         }
         self.assertEqual(args, process.args)
 
-
     def _create_body(self, ppid=None, name=None, nova_flavor_id=None,
                      glance_image_id=None, keypair_id=None,
                      securitygroup_ids=None, userdata=None, args=None):
@@ -89,7 +89,7 @@ class ProcesssTest(utils.TestCase):
         f.seek(0)
         params = {
             'ppid': '11111111',
-            'name':'process1',
+            'name': 'process1',
             'nova_flavor_id': 1,
             'glance_image_id': '22222222',
             'keypair_id': '33333333',
@@ -124,12 +124,15 @@ class ProcesssTest(utils.TestCase):
         app_status = 'ACTIVE'
         pid = 'aaaaaaaa'
         process = self.cs.processes.update(self.gid,
-                                          pid, app_status)
+                                           pid, app_status)
         body = self._update_body(app_status)
-        self.cs.assert_called('PUT', '/groups/%s/processes/%s' % (self.gid, pid), body)
+        self.cs.assert_called('PUT',
+                              '/groups/%s/processes/%s' % (self.gid, pid),
+                              body)
         self.assertIsInstance(process, self.process_type)
 
     def test_delete(self):
         pid = 'aaaaaaaa'
         self.cs.processes.delete(self.gid, pid)
-        self.cs.assert_called('DELETE', '/groups/%s/processes/%s' % (self.gid, pid))
+        self.cs.assert_called('DELETE', '/groups/%s/processes/%s'
+                                        % (self.gid, pid))

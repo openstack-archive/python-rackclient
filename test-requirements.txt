@@ -1,6 +1,7 @@
 coverage
 discover
 fixtures
+flake8
 testrepository
 testtools
 mock

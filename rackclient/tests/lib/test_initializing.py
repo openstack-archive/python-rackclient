@@ -15,7 +15,7 @@ import cPickle
 import json
 import logging
 
-from mock import *
+from mock import Mock, patch
 from rackclient import exceptions
 from rackclient.tests import utils
 from rackclient.lib import initializing
@@ -33,8 +33,8 @@ class InitializingTest(utils.TestCase):
         self.addCleanup(p.stop)
         mock_request = p.start()
         mock_resp = Mock()
-        mock_resp.text= json.dumps(dict(meta=dict(
-            proxy_ip="10.0.0.2",gid="gid", pid="pid", ppid="ppid")))
+        mock_resp.text = json.dumps(dict(meta=dict(
+            proxy_ip="10.0.0.2", gid="gid", pid="pid", ppid="ppid")))
         mock_request.return_value = mock_resp
 
     def test_get_rack_context(self):
@@ -51,13 +51,12 @@ class InitializingTest(utils.TestCase):
             return info
 
         mock_client.proxy = Mock()
-        mock_client_processes = Mock()
         mock_client.proxy.get.side_effect = proxy_info
         p2 = patch("rackclient.lib.initializing._Messaging")
         self.addCleanup(p2.stop)
         mock_messaging = p2.start()
         mock_messaging = mock_messaging.return_value
-        mock_messaging.receive_msg.return_value=dict(pid="ppid")
+        mock_messaging.receive_msg.return_value = dict(pid="ppid")
         actual_context = initializing.get_rack_context()
 
         expect_context = type('', (object,), dict(
@@ -72,9 +71,12 @@ class InitializingTest(utils.TestCase):
         self.assertEquals(expect_context.pid, actual_context.pid)
         self.assertEquals(expect_context.ppid, actual_context.ppid)
         self.assertEquals(expect_context.proxy_ip, actual_context.proxy_ip)
-        self.assertEquals(expect_context.ipc_endpoint, actual_context.ipc_endpoint)
-        self.assertEquals(expect_context.fs_endpoint, actual_context.fs_endpoint)
-        self.assertEquals(expect_context.shm_endpoint, actual_context.shm_endpoint)
+        self.assertEquals(expect_context.ipc_endpoint,
+                          actual_context.ipc_endpoint)
+        self.assertEquals(expect_context.fs_endpoint,
+                          actual_context.fs_endpoint)
+        self.assertEquals(expect_context.shm_endpoint,
+                          actual_context.shm_endpoint)
 
     def test_get_rack_cotext_ProcessInitError_due_to_proxy(self):
         self.p = patch("rackclient.lib.initializing.Client")
@@ -82,7 +84,6 @@ class InitializingTest(utils.TestCase):
         mock_client = self.p.start()
         mock_client = mock_client.return_value
         mock_client.proxy = Mock()
-        mock_client_processes = Mock()
         mock_client.proxy.get.side_effect = Exception()
         self.assertRaises(Exception, initializing.get_rack_context)
 
@@ -92,7 +93,6 @@ class InitializingTest(utils.TestCase):
         mock_client = self.p.start()
         mock_client = mock_client.return_value
         mock_client.proxy = Mock()
-        mock_client_processes = Mock()
         mock_client.processes.get.side_effect = exceptions.NotFound("")
         self.assertRaises(Exception, initializing.get_rack_context)
 
@@ -100,7 +100,8 @@ class InitializingTest(utils.TestCase):
     def test_messaging_receive_msg(self, mock_receive):
         self.mock_connection = Mock()
         self.mock_channel = Mock()
-        self.patch_pika_blocking = patch('pika.BlockingConnection', autospec=True)
+        self.patch_pika_blocking = patch('pika.BlockingConnection',
+                                         autospec=True)
         self.addCleanup(self.patch_pika_blocking.stop)
         self.mock_pika_blocking = self.patch_pika_blocking.start()
         self.mock_pika_blocking.return_value = self.mock_connection
@@ -128,11 +129,11 @@ class InitializingTest(utils.TestCase):
         self.mock_channel.start_consuming.assert_called_with()
         self.assertEqual(message, mock_receive().message)
 
-
     def test_messaging_send_msg(self):
         self.mock_connection = Mock()
         self.mock_channel = Mock()
-        self.patch_pika_blocking = patch('pika.BlockingConnection', autospec=True)
+        self.patch_pika_blocking = patch('pika.BlockingConnection',
+                                         autospec=True)
         self.addCleanup(self.patch_pika_blocking.stop)
         self.mock_pika_blocking = self.patch_pika_blocking.start()
         self.mock_pika_blocking.return_value = self.mock_connection
@@ -161,7 +162,8 @@ class InitializingTest(utils.TestCase):
     def test_receive_get_msg(self):
         self.mock_connection = Mock()
         self.mock_channel = Mock()
-        self.patch_pika_blocking = patch('pika.BlockingConnection', autospec=True)
+        self.patch_pika_blocking = patch('pika.BlockingConnection',
+                                         autospec=True)
         self.addCleanup(self.patch_pika_blocking.stop)
         self.mock_pika_blocking = self.patch_pika_blocking.start()
         self.mock_pika_blocking.return_value = self.mock_connection
@@ -188,13 +190,14 @@ class InitializingTest(utils.TestCase):
         receive.get_msg(ch, method, properties, body)
 
         ch.basic_ack.assert_called_with(delivery_tag=ch_object['delivery_tag'])
-        ch.stop_consuming.assert_call_with()
+        ch.stop_consuming.assert_called_with()
         self.assertEqual(receive.message, receive_msg)
 
     def test_receive_timeout(self):
         self.mock_connection = Mock()
         self.mock_channel = Mock()
-        self.patch_pika_blocking = patch('pika.BlockingConnection', autospec=True)
+        self.patch_pika_blocking = patch('pika.BlockingConnection',
+                                         autospec=True)
         self.addCleanup(self.patch_pika_blocking.stop)
         self.mock_pika_blocking = self.patch_pika_blocking.start()
         self.mock_pika_blocking.return_value = self.mock_connection

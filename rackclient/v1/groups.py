@@ -73,7 +73,7 @@ class GroupManager(base.Manager):
     def delete(self, gid):
         """
         Delete a group.
-        
+
         :param gid: ID of the group to delete.
         """
         self._delete("/groups/%s" % gid)

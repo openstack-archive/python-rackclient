@@ -20,8 +20,8 @@ from cliff.show import ShowOne
 from rackclient import client
 
 
-def _make_print_data(keypair_id, name, nova_keypair_id, is_default, private_key,
-                     gid, user_id, project_id, status=None):
+def _make_print_data(keypair_id, name, nova_keypair_id, is_default,
+                     private_key, gid, user_id, project_id, status=None):
     columns = ['keypair_id', 'name', 'nova_keypair_id', 'is_default',
                'private_key', 'gid', 'user_id', 'project_id']
     data = [keypair_id, name, nova_keypair_id, is_default,
@@ -155,7 +155,8 @@ class UpdateKeypair(ShowOne):
                             help="Keypair ID")
         parser.add_argument('--is-default', metavar='<true/false>',
                             required=True,
-                            help="Defaults to the default keypair of the group")
+                            help="Defaults to the default keypair of "
+                                 "the group")
         return parser
 
     def take_action(self, parsed_args):

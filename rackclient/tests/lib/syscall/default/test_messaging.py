@@ -169,7 +169,7 @@ class MessagingTest(utils.LibTestCase):
         receive.get_msg(ch, method, properties, body)
 
         ch.basic_ack.assert_called_with(delivery_tag=ch_object['delivery_tag'])
-        ch.stop_consuming.assert_call_with()
+        ch.stop_consuming.assert_called_with()
         self.assertEqual(receive.message, receive_msg)
 
     def test_receive_timeout(self):

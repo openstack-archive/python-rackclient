@@ -39,10 +39,7 @@ class ClientTest(utils.TestCase):
             'User-Agent': 'python-rackclient'
         }})
 
-        data = {'group': {
-            'name': 'group1',
-            'description': 'This is group1'
-        }}
+        data = {'group': {'name': 'group1'}}
         cs.http_log_req('POST', '/foo', {
             'headers': {
                 'Content-Type': 'application/json'
@@ -58,8 +55,7 @@ class ClientTest(utils.TestCase):
                       output)
         self.assertIn("REQ: curl -i '/foo' -X POST "
                       '-H "Content-Type: application/json" '
-                      '-d \'{"group": {"name": "group1", '
-                      '"description": "This is group1"}}\'',
+                      '-d \'{"group": {"name": "group1"}}\'',
                       output)
 
     def test_log_resp(self):
@@ -73,15 +69,14 @@ class ClientTest(utils.TestCase):
         )
         cs = client.HTTPClient('rack_url', True)
 
-        text = '{"group": {"name": "group1", "description": "This is group1"}}'
+        text = '{"group": {"name": "group1"}}'
         resp = utils.TestResponse({'status_code': 200, 'headers': {},
                                    'text': text})
         cs.http_log_resp(resp)
 
         output = self.logger.output.split('\n')
         self.assertIn("RESP: [200] {}", output)
-        self.assertIn('RESP BODY: {"group": {"name": "group1", '
-                      '"description": "This is group1"}}', output)
+        self.assertIn('RESP BODY: {"group": {"name": "group1"}}', output)
 
     def test_request(self):
         cs = client.HTTPClient('http://www.foo.com', False)

@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: Tetsuya OIKAWA <tetsuya.oikawa@ctc-g.co.jp>
+Workflow+1: Tetsuya OIKAWA <tetsuya.oikawa@ctc-g.co.jp>
+Submitted-by: Jenkins
+Submitted-at: Wed, 22 Jul 2015 01:17:04 +0000
+Reviewed-on: https://review.openstack.org/203947
+Project: stackforge/python-rackclient
+Branch: refs/heads/develop

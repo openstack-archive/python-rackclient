@@ -167,6 +167,12 @@ class Boot(ShowOne):
                             dest='securitygroup_ids', action='append',
                             default=[],
                             help="Securitygroup ID (Can be repeated)")
+        parser.add_argument('--floating_network', metavar='<network-id>',
+                            dest='floating_networks', action='append',
+                            default=[],
+                            help="Network ID. A floating IP address will be "
+                                 "associated with a new process's port that "
+                                  "is on this network (Can be repeated)")
         parser.add_argument('--userdata', metavar='</file/path>',
                             help="Userdata file path")
         parser.add_argument('--args', metavar='<key1=value1,key2=value2,...>',
@@ -193,6 +199,7 @@ class Boot(ShowOne):
             glance_image_id=parsed_args.image,
             keypair_id=parsed_args.keypair,
             securitygroup_ids=parsed_args.securitygroup_ids,
+            floating_networks=parsed_args.floating_networks,
             userdata=userdata,
             args=parsed_args.args)
 

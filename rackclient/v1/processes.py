@@ -60,14 +60,20 @@ class ProcessManager(base.Manager):
         :param glance_image_id: ID of a glance image
         :param keypair_id: ID of a keypair
         :param list securitygroup_ids: List of IDs of securitygroups
+        :param list floating_networks: List of IDs of networks.
+         These networks must be connected to an external network.
         :param userdata: file type object or string of script
-        :param dict args: Dict of key-value pairs to be stored as metadata
         """
 
         securitygroup_ids = kwargs.get('securitygroup_ids')
         if securitygroup_ids is not None and not isinstance(
                 securitygroup_ids, list):
             raise exceptions.CommandError("securitygroup_ids must be a list")
+
+        floating_networks = kwargs.get('floating_networks')
+        if floating_networks is not None and not isinstance(
+                floating_networks, list):
+            raise exceptions.CommandError("floating_networks must be a list")
 
         userdata = kwargs.get('userdata')
         if userdata:
@@ -87,6 +93,7 @@ class ProcessManager(base.Manager):
                 "glance_image_id": kwargs.get('glance_image_id'),
                 "keypair_id": kwargs.get('keypair_id'),
                 "securitygroup_ids": securitygroup_ids,
+                "floating_networks": floating_networks,
                 "userdata": userdata_b64 if userdata else userdata,
                 "args": args
             }

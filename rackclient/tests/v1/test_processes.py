@@ -68,7 +68,8 @@ class ProcesssTest(utils.TestCase):
 
     def _create_body(self, ppid=None, name=None, nova_flavor_id=None,
                      glance_image_id=None, keypair_id=None,
-                     securitygroup_ids=None, userdata=None, args=None):
+                     securitygroup_ids=None, floating_networks=None,
+                     userdata=None, args=None):
         return {
             'process': {
                 'ppid': ppid,
@@ -77,6 +78,7 @@ class ProcesssTest(utils.TestCase):
                 'glance_image_id': glance_image_id,
                 'keypair_id': keypair_id,
                 'securitygroup_ids': securitygroup_ids,
+                'floating_networks': floating_networks,
                 'userdata': userdata,
                 'args': args
             }
@@ -94,6 +96,7 @@ class ProcesssTest(utils.TestCase):
             'glance_image_id': '22222222',
             'keypair_id': '33333333',
             'securitygroup_ids': ['44444444', '55555555'],
+            'floating_networks': ['66666666', '77777777'],
             'userdata': f,
             'args': {
                 "key1": "value1",
@@ -110,6 +113,8 @@ class ProcesssTest(utils.TestCase):
         ppid = 'aaaaaaaa'
         self.assertRaises(exc.CommandError, self.cs.processes.create,
                           self.gid, ppid=ppid, securitygroup_ids='invalid')
+        self.assertRaises(exc.CommandError, self.cs.processes.create,
+                          self.gid, ppid=ppid, floating_networks='invalid')
         self.assertRaises(exc.CommandError, self.cs.processes.create,
                           self.gid, ppid=ppid, args='invalid')
 

@@ -131,11 +131,11 @@ class CreateProxy(ShowOne):
     def take_action(self, parsed_args):
         proxy = self.client.proxy.create(
             self.gid,
-            ame=parsed_args.name,
-            ova_flavor_id=parsed_args.flavor,
-            lance_image_id=parsed_args.image,
-            eypair_id=parsed_args.keypair,
-            ecuritygroup_ids=parsed_args.securitygroup)
+            name=parsed_args.name,
+            nova_flavor_id=parsed_args.flavor,
+            glance_image_id=parsed_args.image,
+            keypair_id=parsed_args.keypair,
+            securitygroup_ids=parsed_args.securitygroup)
 
         sg_ids = proxy.securitygroup_ids
         if sg_ids:

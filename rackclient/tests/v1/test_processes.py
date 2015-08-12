@@ -19,10 +19,10 @@ from rackclient.tests.v1 import fakes
 from rackclient.v1 import processes
 
 
-class ProcesssTest(utils.TestCase):
+class ProcessesTest(utils.TestCase):
 
     def setUp(self):
-        super(ProcesssTest, self).setUp()
+        super(ProcessesTest, self).setUp()
         self.cs = fakes.FakeClient()
         self.process_type = processes.Process
         self.gid = '11111111'

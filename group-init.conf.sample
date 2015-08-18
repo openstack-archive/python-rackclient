@@ -36,7 +36,7 @@ ext_router_id =
 # rules = protocol=[tcp|udp|icmp],port_range_max=[1-65535],port_range_min=[1-65535],[remote_ip_prefix=x.x.x.x/xx|remote_securitygroup_id=xx]
 #
 # Examples (you can specify more than one rules as a space separated value):
-# rules = 
+# rules =
 #     protocol=tcp,port_range_max=80,port_range_min=80,remote_ip_prefix=10.0.0.0/24
 #     protocol=udp,port_range_max=1,port_range_min=1023,remote_securitygroup_id=0dae9752-7e60-4da1-8c98-616e8b97ce8d
 #     protocol=icmp,remote_ip_prefix=10.0.0.0/24
@@ -59,3 +59,8 @@ glance_image_id =
 ### Not required params ###
 #name =
 
+[process]
+# name =
+# nova_flavor_id =
+# glance_image_id =
+# args =

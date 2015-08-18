@@ -13,6 +13,7 @@
 #    limitations under the License.
 import argparse
 import os
+import time
 
 from ConfigParser import ConfigParser
 from ConfigParser import NoOptionError
@@ -53,6 +54,14 @@ def _make_print_data(gid, name, description, user_id, project_id,
         data.append(processes)
 
     return columns, data
+
+
+class RackConfigParser(ConfigParser):
+    def get_ex(self, section, value):
+        try:
+            return self.get(section, value)
+        except NoOptionError:
+            pass
 
 
 class ListGroups(Lister):
@@ -243,7 +252,7 @@ class InitGroup(ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        config = ConfigParser()
+        config = RackConfigParser()
         config.read(parsed_args.config)
 
         group_description = None
@@ -257,6 +266,10 @@ class InitGroup(ShowOne):
         network_gateway_ip = None
         network_dns_nameservers = []
         proxy_name = None
+        process_name = None
+        process_flavor = None
+        process_image = None
+        process_args = None
 
         # Required options
         try:
@@ -279,56 +292,28 @@ class InitGroup(ShowOne):
         except NoOptionError:
             pass
 
-        try:
-            group_description = config.get('group', 'description')
-        except NoOptionError:
-            pass
+        group_description = config.get_ex('group', 'description')
+        keypair_name = config.get_ex('keypair', 'name')
+        keypair_is_default = config.get_ex('keypair', 'is_default')
+        securitygroup_name = config.get_ex('securitygroup', 'name')
+        securitygroup_is_default = \
+            config.get_ex('securitygroup', 'is_default')
+        network_name = config.get_ex('network', 'name')
+        network_is_admin = config.get_ex('network', 'is_admin')
+        network_gateway_ip = config.get_ex('network', 'gateway_ip')
+        network_dns_nameservers = \
+            config.get_ex('network', 'dns_nameservers').split()
+        proxy_name = config.get_ex('proxy', 'name')
+        process_name = config.get_ex('process', 'name')
+        process_flavor = config.get_ex('process', 'nova_flavor_id')
+        process_image = config.get_ex('process', 'glance_image_id')
 
         try:
-            keypair_name = config.get('keypair', 'name')
-        except NoOptionError:
-            pass
-
-        try:
-            keypair_is_default = config.get('keypair', 'is_default')
-        except NoOptionError:
-            pass
-
-        try:
-            securitygroup_name = config.get('securitygroup', 'name')
-        except NoOptionError:
-            pass
-
-        try:
-            securitygroup_is_default = config.get('securitygroup',
-                                                  'is_default')
-        except NoOptionError:
-            pass
-
-        try:
-            network_name = config.get('network', 'name')
-        except NoOptionError:
-            pass
-
-        try:
-            network_is_admin = config.get('network', 'is_admin')
-        except NoOptionError:
-            pass
-
-        try:
-            network_gateway_ip = config.get('network', 'gateway_ip')
-        except NoOptionError:
-            pass
-
-        try:
-            network_dns_nameservers = config.get(
-                'network',
-                'dns_nameservers').split()
-        except NoOptionError:
-            pass
-
-        try:
-            proxy_name = config.get('proxy', 'name')
+            process_args = config.get('process', 'args')
+            process_args = utils.keyvalue_to_dict(process_args)
+        except argparse.ArgumentTypeError:
+            raise exceptions.CommandError(
+                "process args are not valid formart")
         except NoOptionError:
             pass
 
@@ -356,5 +341,20 @@ class InitGroup(ShowOne):
                    'proxy_pid', 'proxy_name']
         data = [group.gid, keypair.keypair_id, securitygroup.securitygroup_id,
                 network.network_id, proxy.pid, proxy.name]
+
+        if process_image and process_flavor:
+            while True:
+                p = self.client.processes.get(proxy.gid, proxy.pid)
+                if p.app_status == "ACTIVE":
+                    break
+                time.sleep(1)
+            process = self.client.processes.create(
+                gid=group.gid,
+                name=process_name,
+                nova_flavor_id=process_flavor,
+                glance_image_id=process_image,
+                args=process_args)
+            columns.append('pid')
+            data.append(process.pid)
 
         return columns, data

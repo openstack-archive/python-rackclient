@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: takehirokaneko <myphone.tk@gmail.com>
+Code-Review+2: Nobuteru Nishida <nobuteru.nishida@ctc-g.co.jp>
+Workflow+1: Nobuteru Nishida <nobuteru.nishida@ctc-g.co.jp>
+Submitted-by: Jenkins
+Submitted-at: Wed, 19 Aug 2015 04:29:51 +0000
+Reviewed-on: https://review.openstack.org/214036
+Project: stackforge/python-rackclient
+Branch: refs/heads/develop

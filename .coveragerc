@@ -4,4 +4,4 @@ source = rackclient
 omit = rackclient/tests/*,rackclient/openstack/*
 
 [report]
-ignore-errors = True
+ignore_errors = True

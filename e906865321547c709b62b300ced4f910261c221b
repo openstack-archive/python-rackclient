@@ -1,0 +1,9 @@
+Verified+2: Jenkins
+Code-Review+2: t-oi <tetsuya.oikawa@ctc-g.co.jp>
+Workflow+1: t-oi <tetsuya.oikawa@ctc-g.co.jp>
+Code-Review+1: Ramanjaneya Reddy Palleti <ramanjaneya.palleti@huawei.com>
+Submitted-by: Jenkins
+Submitted-at: Mon, 19 Oct 2015 05:56:25 +0000
+Reviewed-on: https://review.openstack.org/236801
+Project: openstack/python-rackclient
+Branch: refs/heads/develop

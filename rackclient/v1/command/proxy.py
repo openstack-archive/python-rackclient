@@ -202,10 +202,10 @@ class UpdateProxy(ShowOne):
 
     def take_action(self, parsed_args):
         proxy = self.client.proxy.update(self.gid,
-                                         parsed_args.fs_endpoint,
-                                         parsed_args.ipc_endpoint,
-                                         parsed_args.shm_endpoint,
-                                         parsed_args.app_status)
+                                         shm_endpoint=parsed_args.shm_endpoint,
+                                         ipc_endpoint=parsed_args.ipc_endpoint,
+                                         fs_endpoint=parsed_args.fs_endpoint,
+                                         app_status=parsed_args.app_status)
 
         sg_ids = proxy.securitygroup_ids
         if sg_ids:

@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: takehirokaneko <myphone.tk@gmail.com>
+Workflow+1: takehirokaneko <myphone.tk@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Thu, 19 Nov 2015 11:39:00 +0000
+Reviewed-on: https://review.openstack.org/247431
+Project: openstack/python-rackclient
+Branch: refs/heads/develop

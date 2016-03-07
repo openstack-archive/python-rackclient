@@ -51,8 +51,8 @@ class PipeTest(utils.LibTestCase):
         self.assertEquals(6379, real.port)
         self.assertEquals("pid", real.name)
         self.assertFalse(real.is_named)
-        self.assertTrue(isinstance(real.read_state, datetime.datetime))
-        self.assertTrue(isinstance(real.write_state, datetime.datetime))
+        self.assertIsInstance(real.read_state, datetime.datetime)
+        self.assertIsInstance(real.write_state, datetime.datetime)
         self.assertTrue(self.ins_redis.hset.call_count == 2)
    
     def test_init_param_read_write_parent(self):
@@ -63,8 +63,8 @@ class PipeTest(utils.LibTestCase):
         self.assertEquals(6379, real.port)
         self.assertEquals("parent", real.name)
         self.assertFalse(real.is_named)
-        self.assertTrue(isinstance(real.read_state, datetime.datetime))
-        self.assertTrue(isinstance(real.write_state, datetime.datetime))
+        self.assertIsInstance(real.read_state, datetime.datetime)
+        self.assertIsInstance(real.write_state, datetime.datetime)
         self.assertTrue(self.ins_redis.hset.call_count == 2)
    
     def test_init_param_read_write_not_none(self):
@@ -85,8 +85,8 @@ class PipeTest(utils.LibTestCase):
         self.assertEquals(6379, real.port)
         self.assertTrue(real.is_named)
         self.assertEquals("test", real.name)
-        self.assertTrue(isinstance(real.read_state, datetime.datetime))
-        self.assertTrue(isinstance(real.write_state, datetime.datetime))
+        self.assertIsInstance(real.read_state, datetime.datetime)
+        self.assertIsInstance(real.write_state, datetime.datetime)
         self.assertTrue(self.ins_redis.hset.call_count == 2)
    
     def test_read(self):

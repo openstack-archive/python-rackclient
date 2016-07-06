@@ -36,12 +36,11 @@ class SignalManager(object):
             header = 'PID: ' + RACK_CTX.pid
         else:
             raise Exception("Target PID is required.")
-        wsapp = websocket.WebSocketApp(
-                               url=self.url + '/receive',
-                               header=[header],
-                               on_message=self.on_message,
-                               on_error=self.on_error,
-                               on_close=self.on_close)
+        wsapp = websocket.WebSocketApp(url=self.url + '/receive',
+                                       header=[header],
+                                       on_message=self.on_message,
+                                       on_error=self.on_error,
+                                       on_close=self.on_close)
         LOG.debug("Started to wait for messages.")
         wsapp.run_forever()
 
@@ -53,7 +52,7 @@ class SignalManager(object):
     def on_error(self, ws, error):
         LOG.error(error)
         ws.close()
-        raise Exception("Error ocurred while waiting for messages.")
+        raise Exception("Error occurred while waiting for messages.")
     
     def on_close(self, ws):
         LOG.debug("Websocket connection %s closed" % ws.header[0])

@@ -192,9 +192,11 @@ class SyscallTest(utils.LibTestCase):
 
     def test_pipe(self):
         return_value = 'pipe'
-        side_effect = lambda value: return_value + value
-        pipe.Pipe = Mock(side_effect=side_effect)
+        def side_effect(return_value):
+            return lambda value: return_value + value
 
+        pipe.Pipe = Mock(side_effect=side_effect(return_value)
+    
         name = 'pipe_name'
         pipe_obj = syscall.pipe(name)
         self.assertEqual(pipe_obj, return_value + name)

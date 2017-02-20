@@ -17,11 +17,8 @@ from swiftclient import client as swift_client
 from swiftclient import exceptions as swift_exc
 
 import json
-import logging
 import tempfile
 
-
-LOG = logging.getLogger(__name__)
 
 SWIFT_PORT = 8080
 

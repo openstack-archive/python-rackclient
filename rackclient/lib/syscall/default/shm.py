@@ -11,13 +11,10 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-import logging
 import redis
 
 from rackclient.lib import RACK_CTX
 
-
-LOG = logging.getLogger(__name__)
 
 FIFO = 3
 PORT = 6379

@@ -15,12 +15,9 @@ from datetime import datetime
 from rackclient.lib import RACK_CTX
 from rackclient import exceptions
 
-import logging
 import redis
 import time
 
-
-LOG = logging.getLogger(__name__)
 
 PIPE = 1
 FIFO = 2

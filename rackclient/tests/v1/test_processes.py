@@ -43,7 +43,7 @@ class ProcesssTest(utils.TestCase):
         self.assertEqual(self.user_id, process.user_id)
         self.assertEqual(self.project_id, process.project_id)
         self.assertEqual(pid, process.pid)
-        self.assertEqual(None, process.ppid)
+        self.assertIsNone(process.ppid)
         self.assertEqual('pppppppp', process.nova_instance_id)
         self.assertEqual('process1', process.name)
         self.assertEqual('xxxxxxxx', process.glance_image_id)

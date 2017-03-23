@@ -35,7 +35,7 @@ class ProxyTest(utils.TestCase):
         self.assertEqual(self.gid, proxy.gid)
         self.assertEqual(self.user_id, proxy.user_id)
         self.assertEqual(self.project_id, proxy.project_id)
-        self.assertEqual(None, proxy.ppid)
+        self.assertIsNone(proxy.ppid)
         self.assertEqual('pppppppp', proxy.nova_instance_id)
         self.assertEqual('proxy', proxy.name)
         self.assertEqual('xxxxxxxx', proxy.glance_image_id)

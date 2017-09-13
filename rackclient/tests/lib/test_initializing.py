@@ -69,12 +69,12 @@ class InitializingTest(utils.TestCase):
             shm_endpoint=None,
             client=mock_client))
 
-        self.assertEquals(expect_context.pid, actual_context.pid)
-        self.assertEquals(expect_context.ppid, actual_context.ppid)
-        self.assertEquals(expect_context.proxy_ip, actual_context.proxy_ip)
-        self.assertEquals(expect_context.ipc_endpoint, actual_context.ipc_endpoint)
-        self.assertEquals(expect_context.fs_endpoint, actual_context.fs_endpoint)
-        self.assertEquals(expect_context.shm_endpoint, actual_context.shm_endpoint)
+        self.assertEqual(expect_context.pid, actual_context.pid)
+        self.assertEqual(expect_context.ppid, actual_context.ppid)
+        self.assertEqual(expect_context.proxy_ip, actual_context.proxy_ip)
+        self.assertEqual(expect_context.ipc_endpoint, actual_context.ipc_endpoint)
+        self.assertEqual(expect_context.fs_endpoint, actual_context.fs_endpoint)
+        self.assertEqual(expect_context.shm_endpoint, actual_context.shm_endpoint)
 
     def test_get_rack_cotext_ProcessInitError_due_to_proxy(self):
         self.p = patch("rackclient.lib.initializing.Client")

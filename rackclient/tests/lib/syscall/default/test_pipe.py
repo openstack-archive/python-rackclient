@@ -36,20 +36,20 @@ class PipeTest(utils.LibTestCase):
         self.ins_redis.get.return_value = "parent"
         self.ins_redis.hget.side_effect = ["r","w"]
         real = pipe.Pipe()
-        self.assertEquals("10.0.0.2", real.host)
-        self.assertEquals(6379, real.port)
-        self.assertEquals("parent", real.name)
+        self.assertEqual("10.0.0.2", real.host)
+        self.assertEqual(6379, real.port)
+        self.assertEqual("parent", real.name)
         self.assertFalse(real.is_named)
-        self.assertEquals("r",real.read_state)
-        self.assertEquals("w", real.write_state)
+        self.assertEqual("r",real.read_state)
+        self.assertEqual("w", real.write_state)
         self.assertTrue(self.ins_redis.hset.call_count == 2)
    
     def test_init_param_read_write_child(self):
         self.ins_redis.keys.return_value = ""
         real = pipe.Pipe(read="read",write="write")
-        self.assertEquals("10.0.0.2", real.host)
-        self.assertEquals(6379, real.port)
-        self.assertEquals("pid", real.name)
+        self.assertEqual("10.0.0.2", real.host)
+        self.assertEqual(6379, real.port)
+        self.assertEqual("pid", real.name)
         self.assertFalse(real.is_named)
         self.assertTrue(isinstance(real.read_state, datetime.datetime))
         self.assertTrue(isinstance(real.write_state, datetime.datetime))
@@ -59,9 +59,9 @@ class PipeTest(utils.LibTestCase):
         self.ins_redis.keys.return_value = "data"
         self.ins_redis.get.return_value = "parent"
         real = pipe.Pipe(read="read",write="write")
-        self.assertEquals("10.0.0.2", real.host)
-        self.assertEquals(6379, real.port)
-        self.assertEquals("parent", real.name)
+        self.assertEqual("10.0.0.2", real.host)
+        self.assertEqual(6379, real.port)
+        self.assertEqual("parent", real.name)
         self.assertFalse(real.is_named)
         self.assertTrue(isinstance(real.read_state, datetime.datetime))
         self.assertTrue(isinstance(real.write_state, datetime.datetime))
@@ -71,20 +71,20 @@ class PipeTest(utils.LibTestCase):
         self.ins_redis.keys.return_value = "data"
         self.ins_redis.get.return_value = "parent"
         real = pipe.Pipe(read="",write="")
-        self.assertEquals("10.0.0.2", real.host)
-        self.assertEquals(6379, real.port)
-        self.assertEquals("parent", real.name)
+        self.assertEqual("10.0.0.2", real.host)
+        self.assertEqual(6379, real.port)
+        self.assertEqual("parent", real.name)
         self.assertFalse(real.is_named)
-        self.assertEquals("close", real.read_state)
-        self.assertEquals("close", real.write_state)
+        self.assertEqual("close", real.read_state)
+        self.assertEqual("close", real.write_state)
         self.assertTrue(self.ins_redis.hset.call_count == 2)
    
     def test_init_param_name(self):
         real = pipe.Pipe("test")
-        self.assertEquals("10.0.0.2", real.host)
-        self.assertEquals(6379, real.port)
+        self.assertEqual("10.0.0.2", real.host)
+        self.assertEqual(6379, real.port)
         self.assertTrue(real.is_named)
-        self.assertEquals("test", real.name)
+        self.assertEqual("test", real.name)
         self.assertTrue(isinstance(real.read_state, datetime.datetime))
         self.assertTrue(isinstance(real.write_state, datetime.datetime))
         self.assertTrue(self.ins_redis.hset.call_count == 2)
@@ -92,12 +92,12 @@ class PipeTest(utils.LibTestCase):
     def test_read(self):
         self.ins_redis.lpop.return_value = "data"
         real = pipe.Pipe(read="read", write="write")
-        self.assertEquals("data", real.read())
+        self.assertEqual("data", real.read())
    
     def test_read_none(self):
         self.ins_redis.lpop.side_effect = [None,"data"]
         real = pipe.Pipe(read="read", write="write")
-        self.assertEquals("data", real.read())
+        self.assertEqual("data", real.read())
            
     def test_read_EndOfFile(self):
         self.ins_redis.lpop.return_value = None
@@ -231,5 +231,5 @@ class PipeTest(utils.LibTestCase):
         self.assertFalse(pipe.Pipe.share("ppid", "pid"))
 
     def test_NoDescriptor_str_(self):
-        self.assertEquals("Descriptor Not Found", exceptions.NoDescriptor().__str__())
+        self.assertEqual("Descriptor Not Found", exceptions.NoDescriptor().__str__())
         
